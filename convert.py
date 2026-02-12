@@ -1,75 +1,86 @@
 import pandas as pd
 import json
-import os
+import re
 
-# 設定檔名
-EXCEL_FILE = 'osha_questions.xlsx.xlsx'
-OUTPUT_FILE = 'questions.js'
+def convert_excel_to_js():
+    questions = []
 
-def convert():
-    if not os.path.exists(EXCEL_FILE):
-        print(f"❌ 找不到檔案: {EXCEL_FILE}")
-        return
-
-    all_data = []
-    print("正在讀取 Excel 資料...")
-
+    # -------------------------------------
+    # 1. 處理 Choice (學科)
+    # -------------------------------------
     try:
-        # 1. 讀取學科
-        # 根據您的截圖 image_a80bfb.jpg，標題是 Option1, Option2...
-        df_choice = pd.read_excel(EXCEL_FILE, sheet_name='Choice').fillna('')
-        
-        for i, row in df_choice.iterrows():
-            # --- 處理答案 ---
-            # 把數字答案轉成字串，去掉小數點 (例如 2.0 -> "2")
-            ans_raw = str(row['Answer']).strip()
-            if ans_raw.endswith('.0'):
-                ans_raw = ans_raw[:-2]
+        try:
+            df_choice = pd.read_excel('osha_questions.xlsx', sheet_name='Choice')
+        except:
+            # 相容性：若無 Choice 分頁，嘗試讀取第一個
+            df_choice = pd.read_excel('osha_questions.xlsx', sheet_name=0)
             
-            # --- 處理選項 ---
-            # 對應 Excel 的 Option1 ~ Option4
-            opts = [
-                f"1. {row['Option1']}",
-                f"2. {row['Option2']}",
-                f"3. {row['Option3']}",
-                f"4. {row['Option4']}"
-            ]
-
-            all_data.append({
-                "year": row['Year'], 
-                "batch": row['Batch'], 
-                "id": row['ID'],
-                "type": "choice", 
-                "mode": row.get('Mode', '單選'), 
-                "question": row['Question'],
-                "options": opts,
-                "answer": ans_raw,  # 這裡程式會輸出 "1", "2"... 對應上面的 1. 2.
-                "note": row['Note']
-            })
+        print(f"📊 讀取學科題目：{len(df_choice)} 題")
         
-        # 2. 處理術科 (如果有 Essay 分頁才做)
-        if 'Essay' in pd.ExcelFile(EXCEL_FILE).sheet_names:
-            df_essay = pd.read_excel(EXCEL_FILE, sheet_name='Essay').fillna('')
-            for _, row in df_essay.iterrows():
-                all_data.append({
-                    "year": row['Year'], "batch": row['Batch'], "id": row['ID'],
-                    "type": "essay", "question": row['Question'],
-                    "answer": row.get('RefAnswer', ''), 
-                    "criteria": str(row.get('Criteria', '')).split('|')
-                })
-
-        # 3. 輸出檔案
-        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-            f.write(f"const questionBank = {json.dumps(all_data, ensure_ascii=False, indent=2)};")
-        
-        print(f"✅ 成功了！共處理了 {len(all_data)} 題。")
-        print("請回到網頁按 F5 測試。")
-
+        for _, row in df_choice.iterrows():
+            ans = str(row['Answer']).replace('.0', '').strip()
+            q_item = {
+                "id": str(row['ID']),
+                "year": int(row['Year']),
+                "batch": int(row['Batch']),
+                "mode": str(row['Mode']).strip(),
+                "type": "choice",
+                "question": str(row['Question']).strip(),
+                "options": [
+                    str(row['Opt1']).strip(),
+                    str(row['Opt2']).strip(),
+                    str(row['Opt3']).strip(),
+                    str(row['Opt4']).strip()
+                ],
+                "answer": ans
+            }
+            questions.append(q_item)
     except Exception as e:
-        print(f"❌ 轉換失敗: {e}")
-        # 如果還是失敗，這行會告訴我們 Excel 到底讀到了什麼標題
-        if 'df_choice' in locals():
-             print("Excel 實際標題:", df_choice.columns.tolist())
+        print(f"⚠️ 學科讀取略過: {e}")
+
+    # -------------------------------------
+    # 2. 處理 Essay (術科)
+    # -------------------------------------
+    try:
+        df_essay = pd.read_excel('osha_questions.xlsx', sheet_name='Essay')
+        print(f"📝 讀取術科題目：{len(df_essay)} 題")
+
+        for _, row in df_essay.iterrows():
+            # 取得原始的評分標準文字 (給 AI 讀懂語意用)
+            raw_criteria = str(row['Criteria']).strip()
+            if raw_criteria == 'nan': raw_criteria = ""
+            
+            # 關鍵字提取 (給電腦輔助標記用)
+            stds = []
+            match = re.search(r"關鍵字[：: ]*(.*)", raw_criteria)
+            if match:
+                kw_str = match.group(1).split('\n')[0]
+                stds = re.split(r'[、,， ]+', kw_str)
+                stds = [s.strip() for s in stds if s.strip()]
+
+            q_item = {
+                "id": str(row['ID']),
+                "year": int(row['Year']),
+                "batch": int(row['Batch']),
+                "type": "essay",
+                "question": str(row['Question']).strip(),
+                "answer": str(row['RefAnswer']).strip(), # 標準參考解答
+                "criteria_display": raw_criteria,        # 完整評分標準
+                "standards": stds,                       # 關鍵字陣列
+                "image": str(row['Image']) if 'Image' in row else ""
+            }
+            questions.append(q_item)
+            
+    except Exception as e:
+        print(f"⚠️ 術科讀取略過: {e}")
+
+    # -------------------------------------
+    # 3. 輸出
+    # -------------------------------------
+    with open('questions.js', 'w', encoding='utf-8') as f:
+        f.write(f"const questionBank = {json.dumps(questions, ensure_ascii=False, indent=2)};")
+    
+    print(f"✅ 轉檔完成！總計 {len(questions)} 題。")
 
 if __name__ == "__main__":
-    convert()
+    convert_excel_to_js()
