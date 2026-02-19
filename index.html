@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>職安衛系統 - V35 穩定加權版</title>
+    <title>職安衛系統 - V36 雙科支援版</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -31,42 +31,82 @@
 <body>
 
     <div class="quiz-header text-center">
-        <h1 class="fw-bold">職安衛練習系統 <small class="fs-6 text-warning">V35</small></h1>
+        <h1 class="fw-bold">職安衛練習系統 <small class="fs-6 text-warning">V36</small></h1>
         <div id="user-display" class="fw-bold">系統載入中...</div>
     </div>
 
     <div id="auth-container" class="container mt-4">
         <div class="card p-4 mx-auto shadow-lg" style="max-width: 400px;">
             <h3 class="text-center mb-4 text-primary">學員登入</h3>
-            <input type="text" id="username" class="form-control mb-3" placeholder="帳號">
-            <input type="password" id="password" class="form-control mb-4" placeholder="密碼">
+            <input type="text" id="username" class="form-control mb-3" placeholder="請輸入帳號">
+            <input type="password" id="password" class="form-control mb-4" placeholder="請輸入密碼">
             <button onclick="handleAuth()" class="btn btn-primary w-100 btn-lg shadow">進入系統</button>
         </div>
     </div>
 
     <div id="setup-container" class="container mt-4" style="display:none;">
-        <div class="card p-4 shadow">
-            <h4 class="fw-bold text-primary mb-4 border-bottom pb-2">測驗參數設定</h4>
-            <div class="mb-4 bg-light p-3 rounded border">
-                <label class="fw-bold text-primary mb-2">🤖 AI 模型設定</label>
-                <div class="input-group">
-                    <button class="btn btn-primary" onclick="scanAvailableModels()">🔍 掃描模型</button>
-                    <select id="model-select" class="form-select"><option value="" disabled selected>請先掃描...</option></select>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card p-4 shadow">
+                    <h4 class="fw-bold text-primary mb-4 border-bottom pb-2">測驗參數設定</h4>
+                    
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <label class="fw-bold text-primary mb-2">🤖 AI 閱卷模型設定</label>
+                        <div class="input-group">
+                            <button class="btn btn-primary" onclick="scanAvailableModels()">🔍 掃描模型</button>
+                            <select id="model-select" class="form-select">
+                                <option value="models/gemini-1.5-flash">預設：Gemini 1.5 Flash (推薦)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fw-bold fs-5">第一步：選擇測驗模式</label>
+                        <select id="type-select" class="form-select form-select-lg" onchange="toggleRangeUI()">
+                            <option value="essay">術科測試 (AI 加權評分)</option>
+                            <option value="single">學科測試 (單選題)</option>
+                            <option value="multiple">學科測試 (複選題)</option>
+                            <option value="full-80">學科全測 (60單選 + 20複選)</option>
+                        </select>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <label class="fw-bold">年度</label>
+                            <select id="year-select" class="form-select"></select>
+                        </div>
+                        <div class="col-4">
+                            <label class="fw-bold">梯次</label>
+                            <select id="batch-select" class="form-select"></select>
+                        </div>
+                        <div class="col-4">
+                            <label class="fw-bold text-success">科目</label>
+                            <select id="subject-select" class="form-select border-success">
+                                <option value="安全">安全</option>
+                                <option value="衛生">衛生</option>
+                                <option value="不分">不分科</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="range-section" style="display:none;" class="mb-4">
+                        <label class="fw-bold">題號範圍</label>
+                        <select id="range-select" class="form-select">
+                            <option value="1-60">1-60 題</option>
+                            <option value="1-30">1-30 題</option>
+                        </select>
+                    </div>
+
+                    <button onclick="prepareQuiz()" class="btn btn-primary w-100 btn-lg shadow">開始測驗</button>
                 </div>
             </div>
-            <div class="mb-4">
-                <label class="fw-bold">測驗模式</label>
-                <select id="type-select" class="form-select form-select-lg" onchange="toggleRangeUI()">
-                    <option value="essay">術科測試 (AI 加權評分)</option>
-                    <option value="single">學科測試 (單選題)</option>
-                    <option value="multiple">學科測試 (複選題)</option>
-                </select>
+            <div class="col-md-5">
+                <div class="card p-4 shadow">
+                    <h4 class="fw-bold mb-4 border-bottom pb-2">歷史成績</h4>
+                    <div id="history-list"></div>
+                    <button onclick="logout()" class="btn btn-link w-100 mt-3 text-danger">登出系統</button>
+                </div>
             </div>
-            <div class="row mb-4">
-                <div class="col"><label class="fw-bold">年度</label><select id="year-select" class="form-select"></select></div>
-                <div class="col"><label class="fw-bold">梯次</label><select id="batch-select" class="form-select"></select></div>
-            </div>
-            <button onclick="prepareQuiz()" class="btn btn-primary w-100 btn-lg shadow">開始測驗</button>
         </div>
     </div>
 
@@ -78,16 +118,19 @@
         </div>
         <div id="question-list"></div>
         <div class="text-center mt-5 mb-5">
-            <button id="ai-submit-btn" onclick="submitQuiz()" class="btn btn-success btn-lg px-5 shadow fw-bold">交卷並請 AI 評分</button>
+            <button id="ai-submit-btn" onclick="submitQuiz()" class="btn btn-success btn-lg px-5 shadow fw-bold">交卷並結算成績</button>
             <div id="ai-loading-msg" class="text-primary mt-3 fw-bold" style="display:none;">
-                <span class="spinner-border spinner-border-sm me-2"></span>AI 閱卷中，請耐心候待 (每題 3 秒間隔避免超額)...
+                <span class="spinner-border spinner-border-sm me-2"></span>AI 閱卷中，為符合免費配額，每題將間隔 3 秒...
             </div>
         </div>
     </div>
 
     <script src="questions.js"></script>
     <script>
-        const SYSTEM_API_KEY = "AIzaSyBVNhf-jPE1G-GD8q8FtbjnlK-_5StKL-I"; 
+        // ==========================================
+        // ★ 必填：請將您的 API Key 貼在下方引號中
+        // ==========================================
+        const SYSTEM_API_KEY = "請在此處貼上您的_AIza_開頭的Key"; 
 
         let currentUser = null, currentQuizQuestions = [], userAnswers = {}, aiResults = {}, isReviewMode = false;
         
@@ -111,7 +154,7 @@
         }
 
         function toggleMic(idx, btn) {
-            if (!recognition) return alert("瀏覽器不支援語音");
+            if (!recognition) return alert("您的瀏覽器不支援語音輸入功能");
             if (!isRecording) {
                 isRecording = true; currentMicIdx = idx;
                 btn.classList.add('recording'); btn.innerHTML = "⏹️";
@@ -140,32 +183,65 @@
             document.getElementById('user-display').innerText = `學員：${currentUser}`;
             if(typeof questionBank !== 'undefined') {
                 const years = [...new Set(questionBank.map(q=>q.year))].sort((a,b)=>b-a);
-                document.getElementById('year-select').innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+                document.getElementById('year-select').innerHTML = years.map(y=>`<option value="${y}">${y} 年</option>`).join('');
                 const batches = [...new Set(questionBank.map(q=>q.batch))].sort((a,b)=>a-b);
-                document.getElementById('batch-select').innerHTML = batches.map(b=>`<option value="${b}">${b}</option>`).join('');
+                document.getElementById('batch-select').innerHTML = batches.map(b=>`<option value="${b}">第 ${b} 梯次</option>`).join('');
             }
+        }
+
+        function toggleRangeUI() {
+            const m = document.getElementById('type-select').value;
+            document.getElementById('range-section').style.display = (m==='single'||m==='multiple') ? 'block' : 'none';
         }
 
         async function scanAvailableModels() {
             const key = SYSTEM_API_KEY.trim();
             const select = document.getElementById('model-select');
+            if(key.includes("請在此處")) return alert("請先填入 API Key");
             try {
                 const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
                 const data = await resp.json();
                 const valid = data.models.filter(m => m.supportedGenerationMethods.includes("generateContent"));
-                select.innerHTML = valid.map(m => `<option value="${m.name}">${m.displayName}</option>`).join('');
-                alert("掃描完成");
-            } catch(e) { alert("掃描失敗"); }
+                if(valid.length > 0) {
+                    select.innerHTML = valid.map(m => `<option value="${m.name}">${m.displayName}</option>`).join('');
+                    alert("✅ 掃描完成！已載入最新可用模型。");
+                }
+            } catch(e) { alert("⚠️ 掃描失敗，將使用預設模型。若無法評分請檢查 Key。"); }
         }
 
+        // V36：加入科目過濾邏輯
         function prepareQuiz() {
             const t = document.getElementById('type-select').value;
             const y = document.getElementById('year-select').value;
             const b = document.getElementById('batch-select').value;
-            currentQuizQuestions = questionBank.filter(q=>q.year==y && q.batch==b && (t==='essay'?q.type==='essay':(q.mode===(t==='single'?'單選':'複選'))));
-            if(currentQuizQuestions.length===0) return alert("無資料");
+            const sub = document.getElementById('subject-select').value; // 取得科目
+            const r = document.getElementById('range-select').value;
+
+            if (t === 'full-80') {
+                const s = questionBank.filter(q => q.year==y && q.batch==b && (q.subject===sub || sub==='不分') && q.mode==='單選').slice(0,60);
+                const m = questionBank.filter(q => q.year==y && q.batch==b && (q.subject===sub || sub==='不分') && q.mode==='複選').slice(0,20);
+                currentQuizQuestions = [...s, ...m];
+            } else {
+                currentQuizQuestions = questionBank.filter(q => {
+                    // 加入 subject 判斷 (若無 subject 欄位則略過)
+                    const basic = (q.year == y) && (q.batch == b) && (q.subject === sub || sub === '不分' || !q.subject);
+                    if(t==='essay') return basic && q.type==='essay';
+                    if(t==='single') return basic && (q.mode==='單選' || q.type==='choice');
+                    if(t==='multiple') return basic && q.mode==='複選';
+                    return false;
+                });
+                
+                if(t==='single' || t==='multiple') {
+                    if(r==='1-30') currentQuizQuestions = currentQuizQuestions.slice(0,30);
+                    else currentQuizQuestions = currentQuizQuestions.slice(0,60);
+                }
+            }
+
+            if(currentQuizQuestions.length===0) return alert("查無此「科目/年度/梯次」的題目，請重新選擇！");
+            
             document.getElementById('setup-container').style.display='none';
             document.getElementById('quiz-container').style.display='block';
+            document.getElementById('quiz-title').innerText = `${sub} - ${document.getElementById('type-select').selectedOptions[0].text}`;
             userAnswers={}; aiResults={}; isReviewMode=false;
             render();
         }
@@ -177,22 +253,24 @@
                 const card = document.createElement('div');
                 card.className = 'card p-4 shadow-sm';
                 
-                if(q.type === 'choice' || q.mode) {
+                if(q.type === 'choice' || q.mode === '單選' || q.mode === '複選') {
                     let h = `<h5>第${i+1}題：${q.question}</h5>`;
-                    q.options.forEach((opt, oi) => {
-                        let cls = 'option-btn';
-                        if(userAnswers[i] == (oi+1)) cls += ' selected';
-                        if(isReviewMode) {
-                            if(oi+1 == q.answer) cls += ' correct';
-                            else if(userAnswers[i] == (oi+1)) cls += ' wrong';
-                        }
-                        h += `<button class="${cls}" onclick="userAnswers[${i}]=${oi+1}; render();" ${isReviewMode?'disabled':''}>(${oi+1}) ${opt}</button>`;
-                    });
+                    if(q.options && q.options.length > 0) {
+                        q.options.forEach((opt, oi) => {
+                            let cls = 'option-btn';
+                            if(userAnswers[i] == (oi+1)) cls += ' selected';
+                            if(isReviewMode) {
+                                if(oi+1 == q.answer) cls += ' correct';
+                                else if(userAnswers[i] == (oi+1)) cls += ' wrong';
+                            }
+                            h += `<button class="${cls}" onclick="userAnswers[${i}]=${oi+1}; render();" ${isReviewMode?'disabled':''}>(${oi+1}) ${opt}</button>`;
+                        });
+                    }
                     card.innerHTML = h;
                 } else {
                     const ai = aiResults[i];
                     const weightMatch = q.question.match(/\((\d+)分\)/) || q.question.match(/（(\d+)分）/);
-                    const weight = weightMatch ? weightMatch[1] : "10";
+                    const weight = weightMatch ? weightMatch[1] : (q.weight || 10);
                     
                     let scoreDisplay = "--";
                     if(ai && !ai.isError) scoreDisplay = ai.actual_score;
@@ -203,13 +281,13 @@
                                 <b>作答區 ${isReviewMode?`<span class="${ai?.isError?'text-warning':'text-danger'}">(${scoreDisplay} / ${weight}分)</span>`:''}</b>
                                 ${!isReviewMode ? `<button class="mic-btn" onclick="toggleMic(${i}, this)">🎤</button>` : ''}
                             </div>
-                            <textarea id="ans-${i}" class="essay-input" ${isReviewMode?'disabled':''} oninput="userAnswers[${i}]=this.value">${userAnswers[i]||''}</textarea>
+                            <textarea id="ans-${i}" class="essay-input" ${isReviewMode?'disabled':''} oninput="userAnswers[${i}]=this.value" placeholder="請輸入答案或點擊麥克風語音輸入...">${userAnswers[i]||''}</textarea>
                         </div>
                         ${isReviewMode ? `
                             <div class="ai-feedback-box">
-                                <b>🤖 AI 講評：</b>
+                                <b>🤖 AI 閱卷官講評：</b>
                                 <div>${marked.parse(ai?ai.feedback:'尚未評分')}</div>
-                                ${ai?.isError ? `<button class="btn btn-sm btn-warning retry-btn" onclick="retrySingle(${i})">🔄 重新請 AI 評分 (不計 0 分)</button>` : ''}
+                                ${ai?.isError ? `<button class="btn btn-sm btn-warning retry-btn" onclick="retrySingle(${i})">🔄 重新請 AI 評分 (單題重試，不計0分)</button>` : ''}
                             </div>
                             <div class="ref-answer-box"><b>參考解答：</b>\n${q.answer}</div>` : ''}`;
                 }
@@ -223,10 +301,10 @@
             let earned = 0, possible = 0;
             currentQuizQuestions.forEach((q, i) => {
                 const weightMatch = q.question.match(/\((\d+)分\)/) || q.question.match(/（(\d+)分）/);
-                const weight = weightMatch ? parseInt(weightMatch[1]) : 10;
+                const weight = weightMatch ? parseInt(weightMatch[1]) : (q.weight || 10);
                 possible += weight;
                 if(aiResults[i] && !aiResults[i].isError) earned += aiResults[i].actual_score;
-                else if(q.type === 'choice' && userAnswers[i] == q.answer) earned += weight;
+                else if((q.type === 'choice' || q.mode === '單選' || q.mode === '複選') && userAnswers[i] == q.answer) earned += weight;
             });
             document.getElementById('quiz-status').innerText = `目前得分：${earned} / ${possible}`;
         }
@@ -234,8 +312,7 @@
         async function submitQuiz() {
             const hasEssay = currentQuizQuestions.some(q => q.type==='essay');
             const model = document.getElementById('model-select').value;
-            if(hasEssay && !model) return alert("請先掃描模型");
-            if(!confirm("確定交卷？")) return;
+            if(!confirm("確定要交卷嗎？")) return;
 
             document.getElementById('ai-submit-btn').style.display='none';
             document.getElementById('ai-loading-msg').style.display='block';
@@ -243,7 +320,7 @@
             for(let i=0; i<currentQuizQuestions.length; i++) {
                 const q = currentQuizQuestions[i];
                 if(q.type==='essay') {
-                    if (i > 0) await new Promise(r => setTimeout(r, 3000));
+                    if (i > 0) await new Promise(r => setTimeout(r, 3000)); // 冷卻 3 秒防超額
                     aiResults[i] = await callAIStrict(q, userAnswers[i]||"未作答");
                 }
             }
@@ -251,12 +328,13 @@
             isReviewMode=true;
             document.getElementById('ai-loading-msg').style.display='none';
             render();
+            window.scrollTo(0, 0); // 回到頂部看分數
         }
 
         async function retrySingle(idx) {
             const q = currentQuizQuestions[idx];
             const feedbackBox = document.querySelectorAll('.ai-feedback-box')[idx];
-            feedbackBox.innerHTML = "⏳ 正在重新呼叫 AI，請稍候...";
+            feedbackBox.innerHTML = "⏳ 正在重新呼叫 AI 閱卷官，請稍候...";
             const res = await callAIStrict(q, userAnswers[idx]||"未作答");
             aiResults[idx] = res;
             render();
@@ -266,11 +344,19 @@
             const key = SYSTEM_API_KEY.trim();
             const model = document.getElementById('model-select').value;
             const weightMatch = q.question.match(/\((\d+)分\)/) || q.question.match(/（(\d+)分）/);
-            const weight = weightMatch ? parseInt(weightMatch[1]) : 10;
+            const weight = weightMatch ? parseInt(weightMatch[1]) : (q.weight || 10);
             
-            const prompt = `你是一位極度嚴格的閱卷官。題目:"${q}"(滿分${weight})。參考答案:"${q.answer}"。考生回答:"${user}"。
-            規則: 1.若學員回答為亂碼、無意義文字(如哈哈)、或完全無關，必須給 0 分。2.根據正確度給0~${weight}分。3.評語直接指出缺點，不可虛假鼓勵。
-            輸出純JSON: {"actual_score":數字, "feedback":"評語"}`;
+            // 混合閱卷：關鍵字預審 (如果有設定的話)
+            if(q.keywords && q.keywords.length > 0) {
+                const matched = q.keywords.filter(kw => user.includes(kw));
+                if(matched.length === 0 && user.length < 10) {
+                    return { actual_score: 0, feedback: "⚠️ **系統自動判定：**\n您的回答字數過少或未命中任何關鍵字，無法給分。", isError: false };
+                }
+            }
+
+            const prompt = `你是一位極度嚴格的職安衛閱卷官。題目:"${q.question}"(滿分${weight})。參考答案:"${q.answer}"。考生回答:"${user}"。
+            規則: 1.若學員回答為亂碼、無意義文字(如哈哈)、或完全無關，必須給 0 分。2.根據正確度給0~${weight}之間的整數。3.評語直接指出缺點，不可虛假鼓勵。
+            輸出純JSON格式: {"actual_score":數字, "feedback":"評語"}`;
             
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/${model.replace("models/","")}:generateContent?key=${key}`;
@@ -281,9 +367,11 @@
                 const res = JSON.parse(t);
                 return { actual_score: res.actual_score, feedback: res.feedback, isError: false };
             } catch(e) {
-                return { actual_score: 0, feedback: "⚠️ **API 繁忙 (配額超出)**\n\n系統尚未評分，請點擊下方按鈕重試。本次錯誤不計入總分。", isError: true };
+                return { actual_score: 0, feedback: "⚠️ **API 繁忙 (Google 免費配額限制)**\n\n由於短時間內閱卷數量過多，系統尚未評分。請點擊下方「🔄 重新請 AI 評分」按鈕單獨重試。本次錯誤不計入總分。", isError: true };
             }
         }
+
+        function logout() { localStorage.removeItem('active_session_user'); location.reload(); }
     </script>
 </body>
 </html>

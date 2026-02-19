@@ -1,0 +1,59 @@
+import pandas as pd
+import json
+import os
+
+EXCEL_FILE = "osha_questions.xlsx" # 請確認您的檔名
+JS_FILE = "questions.js"
+
+def convert_excel_to_js():
+    if not os.path.exists(EXCEL_FILE):
+        print(f"❌ 找不到 {EXCEL_FILE}")
+        return
+
+    try:
+        df = pd.read_excel(EXCEL_FILE) # 若是 CSV 檔，請改用 df = pd.read_csv(EXCEL_FILE, encoding='utf-8-sig')
+        df.columns = df.columns.str.strip()
+    except Exception as e:
+        print(f"❌ 讀取檔案失敗: {e}")
+        return
+    
+    data_list = []
+    for index, row in df.iterrows():
+        try:
+            item = {
+                "id": str(index + 1),
+                "year": int(row.get('年度', 110)),
+                "batch": int(row.get('梯次', 1)),
+                "subject": str(row.get('科目', '不分')).strip(), # ★ 新增：讀取科目
+                "type": "essay" if str(row.get('題目類型', '')).strip() == '術科' else "choice",
+                "mode": str(row.get('模式', '')).strip(),
+                "question": str(row.get('題目內容', '')).strip(),
+                "answer": str(row.get('正確答案', '')).strip(),
+                "weight": int(row.get('配分', 10))
+            }
+
+            # 處理選擇題選項
+            options_raw = row.get('選項')
+            if pd.notna(options_raw) and item['type'] == 'choice':
+                options_str = str(options_raw).replace('，', ',')
+                item["options"] = [opt.strip() for opt in options_str.split(',')]
+                try: item["answer"] = int(item["answer"])
+                except: pass
+
+            # 處理術科關鍵字
+            keywords_raw = row.get('關鍵字')
+            if pd.notna(keywords_raw):
+                k_str = str(keywords_raw).replace('，', ',')
+                item["keywords"] = [k.strip() for k in k_str.split(',') if k.strip()]
+
+            data_list.append(item)
+        except Exception as e:
+            print(f"⚠️ 第 {index+2} 列錯誤 (跳過): {e}")
+            continue
+
+    with open(JS_FILE, "w", encoding="utf-8") as f:
+        f.write(f"const questionBank = {json.dumps(data_list, ensure_ascii=False, indent=2)};\n")
+    print(f"✅ 成功轉換 {len(data_list)} 題，已包含「科目」分類！")
+
+if __name__ == "__main__":
+    convert_excel_to_js()
