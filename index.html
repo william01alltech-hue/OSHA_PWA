@@ -1,297 +1,454 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>職安衛系統 - V38 自我評量版</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職安衛學科測驗系統</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="questions.js"></script>
     <style>
-        :root { --primary-color: #003366; --accent-color: #ff9800; }
-        body { background-color: #f4f7f9; font-family: "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
-        .quiz-header { background: var(--primary-color); color: white; padding: 20px 0; border-bottom: 5px solid var(--accent-color); }
-        .card { border-radius: 15px; border: none; box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-bottom: 20px; }
-        
-        /* 麥克風 (瀏覽器內建功能，不需 API) */
-        .mic-btn { font-size: 1.8rem; border: none; background: #f8d7da; color: #dc3545; border-radius: 50%; width: 60px; height: 60px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; cursor: pointer; }
-        .mic-btn.recording { background: #dc3545 !important; color: white !important; animation: pulse 1.5s infinite; transform: scale(1.1); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+        /* 樣式與之前相同，保持優美版面 */
+        :root {
+            --primary-color: #2b6cb0;
+            --secondary-color: #4299e1;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --border-color: #e2e8f0;
+            --success-color: #48bb78;
+            --danger-color: #e53e3e;
+        }
 
-        .essay-input { width: 100%; min-height: 150px; border-radius: 10px; border: 2px solid #ddd; padding: 12px; font-size: 1.1rem; }
-        .ref-answer-box { background: #f1f8e9; border-left: 5px solid #558b2f; padding: 15px; margin-top: 15px; border-radius: 5px; white-space: pre-wrap; font-size: 1.05rem; line-height: 1.6;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+        }
+
+        .form-group { margin-bottom: 20px; display: none; }
+        .form-group.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+
+        select, button {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color);
+            border-radius: 6px; font-size: 1rem; box-sizing: border-box;
+        }
+
+        select:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); }
+
+        .level-1-buttons { display: flex; gap: 10px; margin-bottom: 25px; }
+        .btn-mode, .btn-action {
+            flex: 1; background-color: #edf2f7; color: var(--text-main);
+            border: 2px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.2s;
+        }
+        .btn-mode.selected { background-color: #ebf8ff; border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-submit { background-color: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
+        .btn-submit:hover { background-color: #1a365d; }
+
+        #quiz-section, #result-section { display: none; }
         
-        .option-btn { text-align: left; margin-bottom: 12px; width: 100%; border-radius: 12px; border: 1px solid #ddd; padding: 15px; background: white; font-size: 1.1rem; cursor: pointer; display: block; transition: 0.2s; }
-        .option-btn.selected { background: #003366; color: white; }
-        .correct { background: #2e7d32 !important; color: white !important; }
-        .wrong { background: #c62828 !important; color: white !important; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+        .question-badge { background-color: var(--secondary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+        .question-text { font-size: 1.1rem; line-height: 1.5; margin-bottom: 20px; font-weight: bold; }
+        .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s; }
+        .option-label:hover { background-color: #f7fafc; }
+        .option-label input { margin-right: 12px; transform: scale(1.2); }
+        .nav-buttons { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-action { background-color: var(--primary-color); color: white; border: none; }
+        .btn-action:disabled { background-color: #cbd5e0; cursor: not-allowed; }
+
+        .result-score { text-align: center; font-size: 3rem; font-weight: bold; color: var(--primary-color); margin: 20px 0; }
+        .error-log { margin-top: 20px; }
+        .error-item { background-color: #fff5f5; border-left: 4px solid var(--danger-color); padding: 10px 15px; margin-bottom: 10px; border-radius: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="quiz-header text-center">
-        <h1 class="fw-bold">職安衛練習系統 <small class="fs-6 text-warning">V38</small></h1>
-        <div id="user-display" class="fw-bold">系統載入中...</div>
-    </div>
+<div class="container" id="main-container">
+    <h1>職安衛學科測驗系統</h1>
 
-    <div id="auth-container" class="container mt-4">
-        <div class="card p-4 mx-auto shadow-lg" style="max-width: 400px;">
-            <h3 class="text-center mb-4 text-primary">學員登入</h3>
-            <input type="text" id="username" class="form-control mb-3" placeholder="請輸入帳號">
-            <input type="password" id="password" class="form-control mb-4" placeholder="請輸入密碼">
-            <button onclick="handleAuth()" class="btn btn-primary w-100 btn-lg shadow">進入系統</button>
+    <div id="setup-section">
+        <label>第一層：請選擇測驗模式</label>
+        <div class="level-1-buttons">
+            <button class="btn-mode" id="btn-exam" onclick="setMode('exam')">歷屆考試</button>
+            <button class="btn-mode" id="btn-law" onclick="setMode('law')">分類法規</button>
         </div>
-    </div>
 
-    <div id="setup-container" class="container mt-4" style="display:none;">
-        <div class="row">
-            <div class="col-md-7">
-                <div class="card p-4 shadow">
-                    <h4 class="fw-bold text-primary mb-4 border-bottom pb-2">測驗參數設定</h4>
-
-                    <div class="mb-4">
-                        <label class="fw-bold fs-5">第一步：選擇測驗模式</label>
-                        <select id="type-select" class="form-select form-select-lg" onchange="toggleRangeUI()">
-                            <option value="essay">術科測試 (作答與自我核對)</option>
-                            <option value="single">學科測試 (單選題)</option>
-                            <option value="multiple">學科測試 (複選題)</option>
-                            <option value="full-80">學科全測 (60單選 + 20複選)</option>
-                        </select>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-4">
-                            <label class="fw-bold">年度</label>
-                            <select id="year-select" class="form-select"></select>
-                        </div>
-                        <div class="col-4">
-                            <label class="fw-bold">梯次</label>
-                            <select id="batch-select" class="form-select"></select>
-                        </div>
-                        <div class="col-4">
-                            <label class="fw-bold text-success">科目</label>
-                            <select id="subject-select" class="form-select border-success">
-                                <option value="安全">安全</option>
-                                <option value="衛生">衛生</option>
-                                <option value="不分">不分科</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="range-section" style="display:none;" class="mb-4">
-                        <label class="fw-bold">題號範圍</label>
-                        <select id="range-select" class="form-select">
-                            <option value="1-20">1-20 題</option>
-                            <option value="21-40">21-40 題</option>
-                            <option value="41-60">41-60 題</option>
-                        </select>
-                    </div>
-
-                    <button onclick="prepareQuiz()" class="btn btn-primary w-100 btn-lg shadow">開始測驗</button>
-                </div>
+        <div id="exam-flow">
+            <div class="form-group" id="group-level2">
+                <label>第二層：考試級別</label>
+                <select id="exam-type" onchange="updateBatches()">
+                    <option value="">請選擇...</option>
+                </select>
             </div>
-            <div class="col-md-5">
-                <div class="card p-4 shadow">
-                    <h4 class="fw-bold mb-4 border-bottom pb-2">歷史成績</h4>
-                    <div id="history-list"></div>
-                    <button onclick="logout()" class="btn btn-link w-100 mt-3 text-danger">登出系統</button>
-                </div>
+            <div class="form-group" id="group-level3">
+                <label>第三層：年度及梯次</label>
+                <select id="exam-batch" onchange="checkExamFlow()">
+                    <option value="">請先選擇考試級別...</option>
+                </select>
+            </div>
+            <div class="form-group" id="group-level4">
+                <label>第四層：題型選擇</label>
+                <select id="question-type" onchange="updateLevel5()">
+                    <option value="">請選擇...</option>
+                    <option value="單選">單選題</option>
+                    <option value="複選">複選題</option>
+                    <option value="全部">全部題型</option>
+                </select>
+            </div>
+            <div class="form-group" id="group-level5">
+                <label>第五層：測驗範圍</label>
+                <select id="question-range" onchange="checkExamFlow()">
+                    <option value="">請選擇...</option>
+                </select>
             </div>
         </div>
+
+        <div id="law-flow">
+            <div class="form-group" id="group-law-category">
+                <label>第二層：法規類別</label>
+                <select id="law-category" onchange="checkLawFlow()">
+                    <option value="">請選擇...</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-submit" id="btn-start" onclick="startTest()">開始測驗</button>
     </div>
 
-    <div id="quiz-container" class="container mt-3" style="display:none;">
-        <div class="sticky-top bg-white p-3 mb-4 border-bottom d-flex justify-content-between align-items-center shadow-sm rounded">
-            <button onclick="location.reload()" class="btn btn-outline-secondary btn-sm">退出</button>
-            <span id="quiz-title" class="fw-bold text-primary"></span>
-            <div id="quiz-status" class="badge bg-dark fs-6">作答中</div>
+    <div id="quiz-section">
+        <div class="question-header">
+            <span class="question-badge" id="q-badge">單選題</span>
+            <span style="font-weight:bold; color:#718096;" id="q-progress">1 / 20</span>
         </div>
-        
-        <div id="question-list"></div>
-        
-        <div class="text-center mt-5 mb-5">
-            <button id="submit-btn" onclick="submitQuiz()" class="btn btn-success btn-lg px-5 shadow fw-bold">交卷 / 顯示解答</button>
+        <div class="question-text" id="q-text">題目載入中...</div>
+        <div id="options-container"></div>
+        <div class="nav-buttons">
+            <button class="btn-action" id="btn-prev" onclick="prevQuestion()">上一題</button>
+            <button class="btn-action" id="btn-next" onclick="nextQuestion()">下一題</button>
         </div>
+        <button class="btn-submit" id="btn-finish" style="margin-top: 15px; width:100%;" onclick="finishTest()">交卷結算</button>
     </div>
 
-    <script src="questions.js"></script>
-    <script>
-        let currentUser = null, currentQuizQuestions = [], userAnswers = {}, isReviewMode = false;
+    <div id="result-section">
+        <h2 style="text-align: center;">測驗完成！</h2>
+        <div class="result-score" id="final-score">100 分</div>
+        <p style="text-align: center; color: #718096;" id="score-detail">共 20 題，答對 20 題</p>
+        <div class="error-log" id="error-log-container">
+            <h3 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">錯題回顧</h3>
+            <div id="error-list"></div>
+        </div>
+        <button class="btn-action" style="margin-top: 30px;" onclick="location.reload()">回首頁重新測驗</button>
+    </div>
+
+</div>
+
+<script>
+    // --- 系統全域變數 ---
+    let currentMode = '';
+    let filteredQuestions = [];
+    let currentQIndex = 0;
+    let userAnswers = []; 
+
+    // ★★★ 初始化引擎：網頁載入時自動去抓取 JSON 資料庫的類別 ★★★
+    window.onload = function() {
+        if (typeof questionBank !== 'undefined') {
+            
+            // 1. 動態生成「考試級別 (Level)」下拉選單
+            const levels = [...new Set(questionBank.exam.map(q => q.level))].filter(Boolean);
+            const levelSelect = document.getElementById('exam-type');
+            levels.forEach(level => {
+                levelSelect.innerHTML += `<option value="${level}">${level}</option>`;
+            });
+
+            // 2. 動態生成「法規類別 (Category)」下拉選單 (直接對應 Excel 的法規欄位)
+            const categories = [...new Set(questionBank.law.map(q => q.category))].filter(Boolean);
+            const categorySelect = document.getElementById('law-category');
+            categories.forEach(cat => {
+                categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            
+        } else {
+            console.error("找不到 questions.js 題庫！");
+        }
+    };
+
+    // ★★★ 動態連動：當選擇了「考試級別」，去題庫撈出該級別對應的所有「年度梯次」 ★★★
+    function updateBatches() {
+        const selectedLevel = document.getElementById('exam-type').value;
+        const batchSelect = document.getElementById('exam-batch');
         
-        // 語音辨識 (這是瀏覽器原生 API，不需任何 Key)
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-        let isRecording = false, currentMicIdx = null;
+        // 重置選項
+        batchSelect.innerHTML = '<option value="">請選擇...</option>';
+        document.getElementById('question-type').value = '';
+        document.getElementById('question-range').innerHTML = '<option value="">請選擇...</option>';
+        
+        if (selectedLevel) {
+            // 從題庫中過濾出這個級別的所有梯次，去重複後進行排序
+            const batches = [...new Set(questionBank.exam
+                .filter(q => q.level === selectedLevel)
+                .map(q => q.batch))]
+                .filter(Boolean)
+                .sort().reverse(); // 降冪排序，新的年份排前面
 
-        if (recognition) {
-            recognition.lang = 'zh-TW'; recognition.continuous = true; recognition.interimResults = true;
-            recognition.onresult = (e) => {
-                const area = document.getElementById(`ans-${currentMicIdx}`);
-                for (let i = e.resultIndex; i < e.results.length; ++i) {
-                    if (e.results[i].isFinal) {
-                        area.value += e.results[i][0].transcript;
-                        userAnswers[currentMicIdx] = area.value;
-                    }
-                }
-            };
-            recognition.onend = () => { if (isRecording) recognition.start(); };
-        }
-
-        function toggleMic(idx, btn) {
-            if (!recognition) return alert("您的瀏覽器不支援語音輸入功能");
-            if (!isRecording) {
-                isRecording = true; currentMicIdx = idx;
-                btn.classList.add('recording'); btn.innerHTML = "⏹️";
-                recognition.start();
-            } else {
-                isRecording = false; btn.classList.remove('recording');
-                btn.innerText = "🎤"; recognition.stop();
-            }
-        }
-
-        window.onload = function() {
-            const u = localStorage.getItem('active_session_user');
-            if(u) { currentUser=u; showDashboard(); }
-        };
-
-        function handleAuth() {
-            const u = document.getElementById('username').value.trim();
-            if(!u) return alert("請輸入帳號");
-            currentUser=u; localStorage.setItem('active_session_user', u);
-            showDashboard();
-        }
-
-        function showDashboard() {
-            document.getElementById('auth-container').style.display='none';
-            document.getElementById('setup-container').style.display='block';
-            document.getElementById('user-display').innerText = `學員：${currentUser}`;
-            if(typeof questionBank !== 'undefined') {
-                const years = [...new Set(questionBank.map(q=>q.year))].sort((a,b)=>b-a);
-                document.getElementById('year-select').innerHTML = years.map(y=>`<option value="${y}">${y} 年</option>`).join('');
-                const batches = [...new Set(questionBank.map(q=>q.batch))].sort((a,b)=>a-b);
-                document.getElementById('batch-select').innerHTML = batches.map(b=>`<option value="${b}">第 ${b} 梯次</option>`).join('');
-            }
-        }
-
-        function toggleRangeUI() {
-            const m = document.getElementById('type-select').value;
-            document.getElementById('range-section').style.display = (m==='single'||m==='multiple') ? 'block' : 'none';
-        }
-
-        function prepareQuiz() {
-            const t = document.getElementById('type-select').value;
-            const y = document.getElementById('year-select').value;
-            const b = document.getElementById('batch-select').value;
-            const sub = document.getElementById('subject-select').value;
-            const r = document.getElementById('range-select').value;
-
-            // 確保過濾時容錯處理 Excel 的 "甲級安全" 或 "安全"
-            const matchSubject = (qSub) => sub === '不分' || !qSub || qSub.includes(sub);
-
-            if (t === 'full-80') {
-                const s = questionBank.filter(q => q.year==y && q.batch==b && matchSubject(q.subject) && q.mode==='單選').slice(0,60);
-                const m = questionBank.filter(q => q.year==y && q.batch==b && matchSubject(q.subject) && q.mode==='複選').slice(0,20);
-                currentQuizQuestions = [...s, ...m];
-            } else {
-                currentQuizQuestions = questionBank.filter(q => {
-                    const basic = (q.year == y) && (q.batch == b) && matchSubject(q.subject);
-                    if(t==='essay') return basic && q.type==='essay';
-                    if(t==='single') return basic && (q.mode==='單選' || q.type==='choice');
-                    if(t==='multiple') return basic && q.mode==='複選';
-                    return false;
-                });
-                
-                if(t==='single' || t==='multiple') {
-                    if(r==='1-20') currentQuizQuestions = currentQuizQuestions.slice(0, 20);
-                    else if(r==='21-40') currentQuizQuestions = currentQuizQuestions.slice(20, 40);
-                    else if(r==='41-60') currentQuizQuestions = currentQuizQuestions.slice(40, 60);
-                }
-            }
-
-            if(currentQuizQuestions.length===0) return alert("查無此「科目/年度/梯次/範圍」的題目，請重新選擇！");
-            
-            document.getElementById('setup-container').style.display='none';
-            document.getElementById('quiz-container').style.display='block';
-            
-            let rangeText = (t==='single' || t==='multiple') ? ` (${r}題)` : "";
-            document.getElementById('quiz-title').innerText = `${sub} - ${document.getElementById('type-select').selectedOptions[0].text}${rangeText}`;
-            
-            userAnswers={}; isReviewMode=false;
-            document.getElementById('submit-btn').style.display = 'inline-block';
-            render();
-        }
-
-        function render() {
-            const list = document.getElementById('question-list');
-            list.innerHTML = '';
-            currentQuizQuestions.forEach((q, i) => {
-                const card = document.createElement('div');
-                card.className = 'card p-4 shadow-sm';
-                
-                if(q.type === 'choice' || q.mode === '單選' || q.mode === '複選') {
-                    // 學科：選擇題
-                    let h = `<h5>第${i+1}題：${q.question}</h5>`;
-                    if(q.options && q.options.length > 0) {
-                        q.options.forEach((opt, oi) => {
-                            let cls = 'option-btn';
-                            if(userAnswers[i] == (oi+1)) cls += ' selected';
-                            if(isReviewMode) {
-                                if(oi+1 == q.answer) cls += ' correct';
-                                else if(userAnswers[i] == (oi+1)) cls += ' wrong';
-                            }
-                            h += `<button class="${cls}" onclick="userAnswers[${i}]=${oi+1}; render();" ${isReviewMode?'disabled':''}>(${oi+1}) ${opt}</button>`;
-                        });
-                    }
-                    card.innerHTML = h;
-                } else {
-                    // 術科：問答題
-                    card.innerHTML = `<h5>第${i+1}題：${q.question}</h5>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <b>您的作答：</b>
-                                ${!isReviewMode ? `<button class="mic-btn" onclick="toggleMic(${i}, this)">🎤</button>` : ''}
-                            </div>
-                            <textarea id="ans-${i}" class="essay-input" ${isReviewMode?'disabled':''} oninput="userAnswers[${i}]=this.value" placeholder="請輸入答案或點擊麥克風語音輸入...">${userAnswers[i]||''}</textarea>
-                        </div>
-                        ${isReviewMode ? `<div class="ref-answer-box"><b>📝 參考解答：</b>\n${q.answer}</div>` : ''}`;
-                }
-                list.appendChild(card);
+            batches.forEach(batch => {
+                batchSelect.innerHTML += `<option value="${batch}">${batch}</option>`;
             });
-            updateTotalScore();
+            document.getElementById('group-level3').classList.add('active');
+        } else {
+            document.getElementById('group-level3').classList.remove('active');
+        }
+        checkExamFlow();
+    }
+
+    // --- 第一區：漏斗式表單邏輯 ---
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-exam').classList.remove('selected');
+        document.getElementById('btn-law').classList.remove('selected');
+        document.getElementById(`btn-${mode}`).classList.add('selected');
+        resetForms();
+        if (mode === 'exam') document.getElementById('group-level2').classList.add('active');
+        else if (mode === 'law') document.getElementById('group-law-category').classList.add('active');
+    }
+
+    function resetForms() {
+        document.querySelectorAll('.form-group').forEach(g => {
+            g.classList.remove('active');
+            const select = g.querySelector('select');
+            if (select) select.value = '';
+        });
+        document.getElementById('btn-start').style.display = 'none';
+        
+        // 清空連動的梯次
+        document.getElementById('exam-batch').innerHTML = '<option value="">請先選擇考試級別...</option>';
+    }
+
+    function checkExamFlow() {
+        const type = document.getElementById('exam-type').value;
+        const batch = document.getElementById('exam-batch').value;
+        const qType = document.getElementById('question-type').value;
+        const range = document.getElementById('question-range').value;
+        const btnStart = document.getElementById('btn-start');
+
+        if (type && batch) document.getElementById('group-level4').classList.add('active');
+        else document.getElementById('group-level4').classList.remove('active');
+
+        if (type && batch && qType && (range || qType === '全部')) btnStart.style.display = 'block';
+        else btnStart.style.display = 'none';
+    }
+
+    function updateLevel5() {
+        const qType = document.getElementById('question-type').value;
+        const group5 = document.getElementById('group-level5');
+        const rangeSelect = document.getElementById('question-range');
+        rangeSelect.innerHTML = '<option value="">請選擇...</option>';
+
+        if (qType === '單選') {
+            group5.classList.add('active');
+            rangeSelect.innerHTML += `<option value="1-20">第 1-20 題</option><option value="21-40">第 21-40 題</option><option value="41-60">第 41-60 題</option><option value="random-20">隨機 20 題</option><option value="all-60">全部 60 題</option>`;
+        } else if (qType === '複選') {
+            group5.classList.add('active');
+            rangeSelect.innerHTML += `<option value="61-80">第 61-80 題</option><option value="random-10">隨機 10 題</option><option value="all-20">全部 20 題</option>`;
+        } else {
+            group5.classList.remove('active');
+            rangeSelect.value = '';
+        }
+        checkExamFlow();
+    }
+
+    function checkLawFlow() {
+        const category = document.getElementById('law-category').value;
+        document.getElementById('btn-start').style.display = category ? 'block' : 'none';
+    }
+
+    // --- 第二區：題庫載入與過濾引擎 ---
+    function startTest() {
+        if (typeof questionBank === 'undefined') {
+            alert("系統找不到題庫 (questions.js)！\n請確認已執行 convert.py 並將轉出的 js 檔放在同一資料夾內。");
+            return;
         }
 
-        function updateTotalScore() {
-            if(!isReviewMode) return;
-            
-            let earned = 0, possible = 0, hasChoice = false;
-            
-            currentQuizQuestions.forEach((q, i) => {
-                // 僅計算選擇題的分數
-                if (q.type === 'choice' || q.mode === '單選' || q.mode === '複選') {
-                    hasChoice = true;
-                    const weightMatch = q.question.match(/\((\d+)分\)/) || q.question.match(/（(\d+)分）/);
-                    const weight = weightMatch ? parseInt(weightMatch[1]) : (q.weight || 2);
-                    possible += weight;
-                    if (userAnswers[i] == q.answer) earned += weight;
+        if (currentMode === 'exam') {
+            const type = document.getElementById('exam-type').value;
+            const batch = document.getElementById('exam-batch').value;
+            const qType = document.getElementById('question-type').value;
+            const range = document.getElementById('question-range').value;
+
+            filteredQuestions = questionBank.exam.filter(q => 
+                q.level === type && 
+                q.batch === batch && 
+                (qType === '全部' || q.type === qType)
+            );
+
+            if (qType !== '全部' && range) {
+                if (range.startsWith('random')) {
+                    const count = parseInt(range.split('-')[1]);
+                    filteredQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, count);
+                } else if (!range.startsWith('all')) {
+                    const [min, max] = range.split('-').map(Number);
+                    filteredQuestions = filteredQuestions.filter(q => {
+                        const num = parseInt(q.qNum);
+                        return num >= min && num <= max;
+                    });
                 }
-            });
-
-            if (hasChoice) {
-                document.getElementById('quiz-status').innerText = `學科得分：${earned} / ${possible}`;
-            } else {
-                document.getElementById('quiz-status').innerText = `作答結束，請核對下方解答`;
-                document.getElementById('quiz-status').classList.replace('bg-dark', 'bg-success');
             }
+        } else if (currentMode === 'law') {
+            const category = document.getElementById('law-category').value;
+            filteredQuestions = questionBank.law.filter(q => q.category === category);
         }
 
-        function submitQuiz() {
-            if(!confirm("確定要交卷嗎？")) return;
+        if (filteredQuestions.length === 0) {
+            alert("查無符合條件的題目！可能是該梯次沒有該題型，請重新選擇。");
+            return;
+        }
+
+        userAnswers = new Array(filteredQuestions.length).fill(null);
+        currentQIndex = 0;
+
+        document.getElementById('setup-section').style.display = 'none';
+        document.getElementById('quiz-section').style.display = 'block';
+        
+        renderQuestion();
+    }
+
+    // --- 第三區：測驗畫面渲染與互動 ---
+    function renderQuestion() {
+        const q = filteredQuestions[currentQIndex];
+        const isMulti = q.type === '複選';
+        
+        document.getElementById('q-badge').innerText = q.type || '測驗';
+        document.getElementById('q-badge').style.backgroundColor = isMulti ? '#ed8936' : 'var(--secondary-color)';
+        document.getElementById('q-progress').innerText = `${currentQIndex + 1} / ${filteredQuestions.length}`;
+        document.getElementById('q-text').innerText = `${q.qNum ? q.qNum + '. ' : ''}${q.question}`;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        const labels = ['A', 'B', 'C', 'D'];
+        const currentAnswer = userAnswers[currentQIndex] || [];
+
+        q.options.forEach((optText, index) => {
+            if (!optText) return; 
+            const labelValue = labels[index];
+            const isChecked = currentAnswer.includes(labelValue) ? 'checked' : '';
+            const inputType = isMulti ? 'checkbox' : 'radio';
             
-            isReviewMode = true;
-            document.getElementById('submit-btn').style.display = 'none';
-            render();
-            window.scrollTo(0, 0); // 回到頂部看分數或核對
+            optionsContainer.innerHTML += `
+                <label class="option-label">
+                    <input type="${inputType}" name="q-option" value="${labelValue}" onchange="recordAnswer()" ${isChecked}>
+                    <span>(${labelValue}) ${optText}</span>
+                </label>
+            `;
+        });
+
+        document.getElementById('btn-prev').disabled = currentQIndex === 0;
+        
+        if (currentQIndex === filteredQuestions.length - 1) {
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-finish').style.display = 'block';
+        } else {
+            document.getElementById('btn-next').style.display = 'block';
+            document.getElementById('btn-finish').style.display = 'none';
+        }
+    }
+
+    function recordAnswer() {
+        const inputs = document.querySelectorAll('input[name="q-option"]:checked');
+        const selected = Array.from(inputs).map(input => input.value);
+        userAnswers[currentQIndex] = selected;
+    }
+
+    function prevQuestion() {
+        if (currentQIndex > 0) {
+            currentQIndex--;
+            renderQuestion();
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQIndex < filteredQuestions.length - 1) {
+            currentQIndex++;
+            renderQuestion();
+        }
+    }
+
+    // --- 第四區：結算與除錯模組 ---
+    function finishTest() {
+        const unans = userAnswers.filter(ans => !ans || ans.length === 0).length;
+        if (unans > 0) {
+            if (!confirm(`您還有 ${unans} 題尚未作答，確定要強制交卷嗎？`)) return;
         }
 
-        function logout() { localStorage.removeItem('active_session_user'); location.reload(); }
-    </script>
+        let correctCount = 0;
+        let errorHtml = '';
+
+        filteredQuestions.forEach((q, index) => {
+            const uAns = userAnswers[index] ? userAnswers[index].sort().join('') : '未作答';
+            const cAns = String(q.answer).toUpperCase().replace(/\s+/g, '').split('').sort().join('');
+            
+            if (uAns === cAns) {
+                correctCount++;
+            } else {
+                errorHtml += `
+                    <div class="error-item">
+                        <strong>第 ${q.qNum || index + 1} 題 (${q.type})</strong><br>
+                        ${q.question}<br>
+                        <span style="color:var(--danger-color)">您的作答：${uAns}</span> <br>
+                        <span style="color:var(--success-color)">標準答案：${cAns}</span>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        
+        const score = Math.round((correctCount / filteredQuestions.length) * 100);
+        document.getElementById('final-score').innerText = `${score} 分`;
+        document.getElementById('score-detail').innerText = `共 ${filteredQuestions.length} 題，答對 ${correctCount} 題`;
+
+        const errorContainer = document.getElementById('error-log-container');
+        if (errorHtml === '') {
+            errorContainer.innerHTML = '<h3 style="color:var(--success-color); text-align:center;">太厲害了！全對滿分！💯</h3>';
+        } else {
+            document.getElementById('error-list').innerHTML = errorHtml;
+        }
+    }
+
+    // PWA Service Worker 註冊
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW 註冊失敗', err));
+        });
+    }
+</script>
 </body>
 </html>
