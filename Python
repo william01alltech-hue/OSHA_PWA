@@ -2,58 +2,108 @@ import pandas as pd
 import json
 import os
 
-EXCEL_FILE = "osha_questions.xlsx" # 請確認您的檔名
-JS_FILE = "questions.js"
+# ---------------------------------------------------------------------------
+# 職安衛學科題庫轉檔工具 (附帶終端機強力除錯雷達)
+# ---------------------------------------------------------------------------
 
-def convert_excel_to_js():
-    if not os.path.exists(EXCEL_FILE):
-        print(f"❌ 找不到 {EXCEL_FILE}")
-        return
+EXCEL_FILE = 'osha_questions.xlsx'
+JS_FILE = 'questions.js'
 
-    try:
-        df = pd.read_excel(EXCEL_FILE) # 若是 CSV 檔，請改用 df = pd.read_csv(EXCEL_FILE, encoding='utf-8-sig')
-        df.columns = df.columns.str.strip()
-    except Exception as e:
-        print(f"❌ 讀取檔案失敗: {e}")
-        return
+def map_answer(ans):
+    """將數字答案轉換為字母"""
+    ans = str(ans).strip().split('.')[0]
+    mapping = {'1': 'A', '2': 'B', '3': 'C', '4': 'D'}
+    return mapping.get(ans, ans)
+
+def determine_level(subject_str):
+    subject_str = str(subject_str)
+    if '甲級安全' in subject_str: return '甲級安全'
+    if '甲級衛生' in subject_str: return '甲級衛生'
+    if '乙級' in subject_str: return '乙級職安衛'
+    return '其他'
+
+def main():
+    print(f"啟動題庫轉檔引擎 (除錯版)：準備讀取 {EXCEL_FILE}...\n")
     
-    data_list = []
-    for index, row in df.iterrows():
-        try:
-            item = {
-                "id": str(index + 1),
-                "year": int(row.get('年度', 110)),
-                "batch": int(row.get('梯次', 1)),
-                "subject": str(row.get('科目', '不分')).strip(), # ★ 新增：讀取科目
-                "type": "essay" if str(row.get('題目類型', '')).strip() == '術科' else "choice",
-                "mode": str(row.get('模式', '')).strip(),
-                "question": str(row.get('題目內容', '')).strip(),
-                "answer": str(row.get('正確答案', '')).strip(),
-                "weight": int(row.get('配分', 10))
-            }
+    question_bank = {"exam": [], "law": []}
+    
+    try:
+        xls = pd.ExcelFile(EXCEL_FILE)
+        
+        # --- 1. 處理 Exam ---
+        if 'Exam' in xls.sheet_names:
+            df_exam = pd.read_excel(xls, 'Exam').fillna("") 
+            for index, row in df_exam.iterrows():
+                if str(row.get('題目內容', '')).strip() == '': continue
+                year = str(row.get('年度', '')).split('.')[0]
+                batch = str(row.get('梯次', '')).split('.')[0]
+                combined_batch = f"{year}-{batch}" if year and batch else ""
+                
+                question_bank["exam"].append({
+                    "level": determine_level(row.get('科目', '')),
+                    "batch": combined_batch,
+                    "type": str(row.get('模式', '')).strip(),
+                    "qNum": str(index + 1), 
+                    "question": str(row.get('題目內容', '')).strip(),
+                    "options": [
+                        str(row.get('選項1', '')).strip(), str(row.get('選項2', '')).strip(),
+                        str(row.get('選項3', '')).strip(), str(row.get('選項4', '')).strip()
+                    ],
+                    "answer": map_answer(row.get('正確答案', ''))
+                })
+            print(f"✅ [Exam] 已匯入 {len(question_bank['exam'])} 筆歷屆試題。")
+        
+        # --- 2. 處理 Law (加上強力除錯) ---
+        if 'Law' in xls.sheet_names:
+            print("\n🔍 正在偵測 Law 分頁的真實結構...")
+            df_law = pd.read_excel(xls, 'Law').fillna("")
+            
+            # 印出所有欄位名稱讓您確認
+            columns = df_law.columns.tolist()
+            print(f"   ➤ Law 分頁共有 {len(columns)} 個欄位。")
+            print(f"   ➤ 欄位清單：{columns}")
+            
+            # 鎖定第 O 欄 (索引值為 14)
+            category_col = None
+            if len(columns) > 14:
+                category_col = columns[14]
+                print(f"   ➤ 成功鎖定第 O 欄，欄位名稱為：【{category_col}】")
+            else:
+                print(f"   ❌ [嚴重警告] Law 分頁沒有第 O 欄！最後一個欄位是：【{columns[-1]}】")
 
-            # 處理選擇題選項
-            options_raw = row.get('選項')
-            if pd.notna(options_raw) and item['type'] == 'choice':
-                options_str = str(options_raw).replace('，', ',')
-                item["options"] = [opt.strip() for opt in options_str.split(',')]
-                try: item["answer"] = int(item["answer"])
-                except: pass
+            for index, row in df_law.iterrows():
+                if str(row.get('題目內容', '')).strip() == '': continue
+                
+                # 抓取分類名稱
+                category_name = ""
+                if category_col:
+                    category_name = str(row[category_col]).strip()
+                    
+                if not category_name or category_name.lower() == 'nan':
+                    category_name = '其他'
+                    
+                question_bank["law"].append({
+                    "category": category_name,
+                    "type": str(row.get('模式', '')).strip(),
+                    "qNum": str(index + 1),
+                    "question": str(row.get('題目內容', '')).strip(),
+                    "options": [
+                        str(row.get('選項1', '')).strip(), str(row.get('選項2', '')).strip(),
+                        str(row.get('選項3', '')).strip(), str(row.get('選項4', '')).strip()
+                    ],
+                    "answer": map_answer(row.get('正確答案', ''))
+                })
+            print(f"\n✅ [Law] 已匯入 {len(question_bank['law'])} 筆分類法規試題。")
+        
+        # --- 3. 匯出 JS ---
+        json_str = json.dumps(question_bank, ensure_ascii=False, indent=4)
+        with open(JS_FILE, 'w', encoding='utf-8') as f:
+            f.write(f"// 本檔案由 convert.py 自動生成\nconst questionBank = {json_str};\n")
+            
+        print(f"\n🎉 轉檔完畢！請查看上方除錯訊息。")
 
-            # 處理術科關鍵字
-            keywords_raw = row.get('關鍵字')
-            if pd.notna(keywords_raw):
-                k_str = str(keywords_raw).replace('，', ',')
-                item["keywords"] = [k.strip() for k in k_str.split(',') if k.strip()]
-
-            data_list.append(item)
-        except Exception as e:
-            print(f"⚠️ 第 {index+2} 列錯誤 (跳過): {e}")
-            continue
-
-    with open(JS_FILE, "w", encoding="utf-8") as f:
-        f.write(f"const questionBank = {json.dumps(data_list, ensure_ascii=False, indent=2)};\n")
-    print(f"✅ 成功轉換 {len(data_list)} 題，已包含「科目」分類！")
+    except Exception as e:
+        print(f"❌ [錯誤] 例外發生：{e}")
 
 if __name__ == "__main__":
-    convert_excel_to_js()
+    main()

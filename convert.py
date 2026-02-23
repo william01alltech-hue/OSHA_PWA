@@ -1,109 +1,121 @@
 import pandas as pd
 import json
-import os
 
 # ---------------------------------------------------------------------------
-# 職安衛學科題庫轉檔工具 (支援五層連動架構)
+# 職安衛學科題庫轉檔工具 (內建資料清洗與 X 光掃描報告)
 # ---------------------------------------------------------------------------
 
 EXCEL_FILE = 'osha_questions.xlsx'
 JS_FILE = 'questions.js'
 
+def map_answer(ans):
+    ans = str(ans).strip().split('.')[0]
+    mapping = {'1': 'A', '2': 'B', '3': 'C', '4': 'D', 'A':'A', 'B':'B', 'C':'C', 'D':'D'}
+    return mapping.get(ans.upper(), ans)
+
+def determine_level(subject_str):
+    subject_str = str(subject_str)
+    if '甲級安全' in subject_str: return '甲級安全'
+    if '甲級衛生' in subject_str: return '甲級衛生'
+    if '乙級' in subject_str: return '乙級職安衛'
+    return '其他'
+
+def normalize_type(type_str):
+    """資料清洗：把各種寫法的題型統一成標準格式"""
+    type_str = str(type_str).strip()
+    if '單' in type_str: return '單選'
+    if '複' in type_str: return '複選'
+    return type_str
+
 def main():
-    print(f"啟動題庫轉檔引擎：準備讀取 {EXCEL_FILE}...")
-    
-    # 初始化最終輸出的資料結構，分為「歷屆考試」與「分類法規」兩大塊
-    question_bank = {
-        "exam": [],
-        "law": []
-    }
+    print(f"啟動題庫轉檔引擎 (X光掃描版)：準備讀取 {EXCEL_FILE}...\n")
+    question_bank = {"exam": [], "law": []}
     
     try:
-        # 讀取 Excel 檔案
         xls = pd.ExcelFile(EXCEL_FILE)
         
-        # ---------------------------------------------------------
-        # 1. 處理「歷屆考試」工作表 (Exam)
-        # ---------------------------------------------------------
+        # --- 處理 Exam ---
         if 'Exam' in xls.sheet_names:
-            print(">> 正在處理「歷屆考試(Exam)」工作表...")
-            df_exam = pd.read_excel(xls, 'Exam')
-            df_exam = df_exam.fillna("") # 處理所有的空值 (NaN)，替換為空字串
+            df_exam = pd.read_excel(xls, 'Exam').fillna("") 
+            total_rows = len(df_exam)
+            skipped_empty = 0
+            
+            print(f"🔍 [Exam] 掃描到 Excel 共有 {total_rows} 列資料...")
             
             for index, row in df_exam.iterrows():
-                # 若題目為空，代表是空行，直接跳過
-                if str(row.get('Question', '')).strip() == '':
+                # 1. 抓取題目，支援多種可能欄位名稱
+                q_text = str(row.get('題目內容', row.get('題目', ''))).strip()
+                if not q_text:
+                    skipped_empty += 1
                     continue
-                    
-                question_data = {
-                    "level": str(row.get('Level', '')).strip(),     # 對應第二層：甲級安全/甲級衛生...
-                    "batch": str(row.get('Batch', '')).strip(),     # 對應第三層：112-3...
-                    "type": str(row.get('Type', '')).strip(),       # 對應第四層：單選/複選
-                    "qNum": str(row.get('QNum', '')).strip(),       # 題號 (用於第五層切分範圍)
-                    "question": str(row.get('Question', '')).strip(),
-                    "options": [
-                        str(row.get('A', '')).strip(),
-                        str(row.get('B', '')).strip(),
-                        str(row.get('C', '')).strip(),
-                        str(row.get('D', '')).strip()
-                    ],
-                    "answer": str(row.get('Answer', '')).strip()
-                }
-                question_bank["exam"].append(question_data)
-            print(f"   [成功] 已匯入 {len(question_bank['exam'])} 筆歷屆試題。")
-        else:
-            print("   [警告] 找不到名稱為「Exam」的工作表，將跳過歷屆考試題庫。")
-
-        # ---------------------------------------------------------
-        # 2. 處理「分類法規」工作表 (Law)
-        # ---------------------------------------------------------
+                
+                # 2. 處理年度梯次
+                year = str(row.get('年度', '')).split('.')[0].strip()
+                batch = str(row.get('梯次', '')).split('.')[0].strip()
+                combined_batch = f"{year}-{batch}" if year and batch else "未分類梯次"
+                
+                # 3. 抓取擴充資訊
+                note_info = str(row.get('參考資訊', row.get('Note', ''))).strip()
+                
+                question_bank["exam"].append({
+                    "level": determine_level(row.get('科目', '')),
+                    "batch": combined_batch,
+                    "type": normalize_type(row.get('模式', '')), # 自動清洗題型
+                    "qNum": str(row.get('題目編號', index + 1)), 
+                    "question": q_text,
+                    "options": [str(row.get('選項1', '')).strip(), str(row.get('選項2', '')).strip(), str(row.get('選項3', '')).strip(), str(row.get('選項4', '')).strip()],
+                    "answer": map_answer(row.get('正確答案', '')),
+                    "law_name": str(row.get('法令名稱去條文', '')).strip(),
+                    "law_article": str(row.get('法令條文', '')).strip(),
+                    "note": note_info
+                })
+            print(f"✅ [Exam] 成功抓取 {len(question_bank['exam'])} 筆歷屆試題。 (略過了 {skipped_empty} 列沒有題目的空行)")
+        
+        # --- 處理 Law ---
         if 'Law' in xls.sheet_names:
-            print(">> 正在處理「分類法規(Law)」工作表...")
-            df_law = pd.read_excel(xls, 'Law')
-            df_law = df_law.fillna("") # 處理所有的空值 (NaN)
+            df_law = pd.read_excel(xls, 'Law').fillna("")
+            total_rows = len(df_law)
+            skipped_empty = 0
             
+            print(f"🔍 [Law] 掃描到 Excel 共有 {total_rows} 列資料...")
+            
+            cols = df_law.columns.tolist()
             for index, row in df_law.iterrows():
-                if str(row.get('Question', '')).strip() == '':
+                q_text = str(row.get('題目內容', row.get('題目', ''))).strip()
+                if not q_text:
+                    skipped_empty += 1
                     continue
+                
+                category_name = ""
+                if '法令名稱去條文' in cols: category_name = str(row['法令名稱去條文']).strip()
+                elif len(cols) > 14: category_name = str(row.iloc[14]).strip()
                     
-                question_data = {
-                    "category": str(row.get('Category', '')).strip(), # 對應法規第二層：職業安全衛生法...
-                    "type": str(row.get('Type', '')).strip(),         # 題型：單選/複選
-                    "qNum": str(row.get('QNum', '')).strip(),         # 題號
-                    "question": str(row.get('Question', '')).strip(),
-                    "options": [
-                        str(row.get('A', '')).strip(),
-                        str(row.get('B', '')).strip(),
-                        str(row.get('C', '')).strip(),
-                        str(row.get('D', '')).strip()
-                    ],
-                    "answer": str(row.get('Answer', '')).strip()
-                }
-                question_bank["law"].append(question_data)
-            print(f"   [成功] 已匯入 {len(question_bank['law'])} 筆分類法規試題。")
-        else:
-            print("   [警告] 找不到名稱為「Law」的工作表，將跳過分類法規題庫。")
+                if not category_name or category_name.lower() == 'nan':
+                    category_name = '其他'
+                    
+                note_info = str(row.get('參考資訊', row.get('Note', ''))).strip()
+                    
+                question_bank["law"].append({
+                    "category": category_name,
+                    "type": normalize_type(row.get('模式', '')), # 自動清洗題型
+                    "qNum": str(row.get('題目編號', index + 1)),
+                    "question": q_text,
+                    "options": [str(row.get('選項1', '')).strip(), str(row.get('選項2', '')).strip(), str(row.get('選項3', '')).strip(), str(row.get('選項4', '')).strip()],
+                    "answer": map_answer(row.get('正確答案', '')),
+                    "law_name": str(row.get('法令名稱去條文', category_name)).strip(),
+                    "law_article": str(row.get('法令條文', '')).strip(),
+                    "note": note_info
+                })
+            print(f"✅ [Law] 成功抓取 {len(question_bank['law'])} 筆分類法規。 (略過了 {skipped_empty} 列沒有題目的空行)")
 
-        # ---------------------------------------------------------
-        # 3. 匯出成 JavaScript 可直接讀取的檔案
-        # ---------------------------------------------------------
-        print(f"\n準備將資料打包並寫入 {JS_FILE}...")
-        
-        # 將 Python 字典轉換為 JSON 格式字串
         json_str = json.dumps(question_bank, ensure_ascii=False, indent=4)
-        
-        # 將 JSON 包裝成全域常數 questionBank
-        js_content = f"// 本檔案由 convert.py 自動生成，請勿手動修改\nconst questionBank = {json_str};\n"
-        
         with open(JS_FILE, 'w', encoding='utf-8') as f:
-            f.write(js_content)
+            f.write(f"// 自動生成題庫\nconst questionBank = {json_str};\n")
             
-        print(f"🎉 轉換作業完美結束！請確認目錄下已生成最新的 {JS_FILE}。")
+        print(f"\n🎉 轉檔完畢！")
 
-    except FileNotFoundError:
-        print(f"❌ [錯誤] 找不到檔案 '{EXCEL_FILE}'。請確認 Excel 檔案是否與本程式放在同一個資料夾下。")
     except Exception as e:
-        print(f"❌ [錯誤] 轉換過程中發生系統例外：{e}")
+        print(f"❌ [錯誤] {e}")
 
 if __name__ == "__main__":
     main()
