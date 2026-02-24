@@ -29,7 +29,6 @@
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: var(--bg-dark); 
-            /* 科技網格背景 */
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.1) 0%, transparent 60%),
                 linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
@@ -45,7 +44,6 @@
             box-sizing: border-box; 
         }
         
-        /* 半透明玻璃科技面板 */
         .container { 
             background: var(--panel-bg); 
             padding: 35px 30px; 
@@ -58,7 +56,6 @@
             margin-top: 10px; 
         }
         
-        /* 霓虹標題 */
         h1 { 
             text-align: center; 
             margin-bottom: 35px; 
@@ -70,178 +67,56 @@
             font-weight: 900;
         }
         
-        /* 網格佈局 */
         .grid-1 { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 18px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
         
-        /* 科技發光模組 (大塊狀 UI) */
         .ui-block {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 60px;
-            font-size: 1.15rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: #fff;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            background: rgba(0, 15, 30, 0.8);
+            display: flex; justify-content: center; align-items: center; width: 100%; height: 60px;
+            font-size: 1.15rem; font-weight: bold; letter-spacing: 2px; color: #fff;
+            border-radius: 6px; box-sizing: border-box; transition: all 0.3s ease; position: relative;
+            overflow: hidden; background: rgba(0, 15, 30, 0.8);
         }
-        
-        /* 科技掃描線效果 */
         .ui-block::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(180deg, transparent 50%, rgba(255,255,255,0.05) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
+            background-size: 100% 4px; pointer-events: none;
         }
 
-        /* 按鈕特化 */
         button.ui-block { cursor: pointer; }
         button.ui-block:hover { filter: brightness(1.2); transform: scale(1.02); }
         button.ui-block:active { transform: scale(0.98); }
         
-        /* 下拉選單特化 */
         select.ui-block {
-            cursor: pointer;
-            appearance: none;
-            text-align: center;
-            text-align-last: center;
+            cursor: pointer; appearance: none; text-align: center; text-align-last: center;
             background-image: url('data:image/svg+xml;utf8,<svg fill="%2300f3ff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-            background-repeat: no-repeat;
-            background-position-x: calc(100% - 15px);
-            background-position-y: center;
-            padding: 0 40px;
+            background-repeat: no-repeat; background-position-x: calc(100% - 15px); background-position-y: center; padding: 0 40px;
         }
         select.ui-block option { background-color: #0b1120; color: var(--neon-blue); font-size: 1rem; }
 
-        /* ====== 霓虹顏色控制 (藍/紫) ====== */
-        
-        /* 歷屆試題 (青藍光) */
-        .bg-blue { 
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 10px var(--neon-blue);
-            text-shadow: 0 0 8px var(--neon-blue);
-        }
-        .bg-blue-light { 
-            border: 1px solid var(--neon-blue-dim);
-            color: rgba(0, 243, 255, 0.6);
-            box-shadow: none; text-shadow: none;
-        }
-
-        /* 考題分類 (雷射紫光) */
-        .bg-purple { 
-            border: 2px solid var(--neon-purple);
-            box-shadow: 0 0 10px var(--neon-purple), inset 0 0 10px var(--neon-purple);
-            text-shadow: 0 0 8px var(--neon-purple);
-        }
-        select.bg-purple {
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23bc13fe" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-        }
+        .bg-blue { border: 2px solid var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue), inset 0 0 10px var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+        .bg-blue-light { border: 1px solid var(--neon-blue-dim); color: rgba(0, 243, 255, 0.6); }
+        .bg-purple { border: 2px solid var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple), inset 0 0 10px var(--neon-purple); text-shadow: 0 0 8px var(--neon-purple); }
+        select.bg-purple { background-image: url('data:image/svg+xml;utf8,<svg fill="%23bc13fe" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); }
         select.bg-purple option { color: var(--neon-purple); }
-        
-        .bg-purple-light { 
-            border: 1px solid var(--neon-purple-dim);
-            color: rgba(188, 19, 254, 0.6);
-            box-shadow: none; text-shadow: none;
-        }
+        .bg-purple-light { border: 1px solid var(--neon-purple-dim); color: rgba(188, 19, 254, 0.6); }
+        .bg-gray { border: 1px dashed #334; background: rgba(255,255,255,0.03); color: #556; pointer-events: none; }
 
-        /* 禁用狀態 */
-        .bg-gray { 
-            border: 1px dashed #334;
-            background: rgba(255,255,255,0.03);
-            color: #556; 
-            pointer-events: none; box-shadow: none; text-shadow: none;
-        }
-
-        /* ====== 測驗區與結果區 ====== */
         #quiz-section, #result-section { display: none; }
-        
         .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,243,255,0.3); }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        
-        .question-badge { 
-            background: rgba(0, 243, 255, 0.1);
-            color: var(--neon-blue); 
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 5px var(--neon-blue);
-            padding: 6px 12px; 
-            border-radius: 4px; 
-            font-size: 0.9rem; 
-            font-weight: bold; 
-            letter-spacing: 1px; 
-        }
-        
+        .question-badge { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border: 1px solid var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue); padding: 6px 12px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; letter-spacing: 1px; }
         #timer-display { font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); font-family: monospace; font-size: 1.3rem; }
         .timer-warning { color: var(--neon-red) !important; text-shadow: 0 0 8px var(--neon-red) !important; animation: blink 1s infinite; }
-        
         .question-text { font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; font-weight: 600; color: #fff; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
-        
-        /* 選項樣式 */
-        .option-label { 
-            display: flex; 
-            align-items: center; 
-            padding: 16px 20px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            font-size: 1.1rem; 
-            color: #ccc;
-        }
-        .option-label:hover { 
-            background: rgba(0, 243, 255, 0.1); 
-            border-color: var(--neon-blue); 
-            color: #fff;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-        }
+        .option-label { display: flex; align-items: center; padding: 16px 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0, 0, 0, 0.4); border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s ease; font-size: 1.1rem; color: #ccc; }
+        .option-label:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--neon-blue); color: #fff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
         .option-label input { margin-right: 18px; transform: scale(1.4); }
-        
         .result-score { text-align: center; font-size: 4rem; font-weight: bold; margin: 25px 0; letter-spacing: 2px; text-shadow: 0 0 15px currentColor; }
-        
-        /* 回饋與錯題區 */
         .error-log { margin-top: 30px; }
-        .error-item { 
-            background: rgba(255, 0, 85, 0.05); 
-            border-left: 4px solid var(--neon-red); 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            border-radius: 4px; 
-            line-height: 1.6; 
-            border-top: 1px solid rgba(255,0,85,0.2);
-            border-right: 1px solid rgba(255,0,85,0.2);
-            border-bottom: 1px solid rgba(255,0,85,0.2);
-        }
-        
-        /* 螢光對錯標示 */
-        .correct-option { 
-            background: rgba(0, 255, 102, 0.1) !important; 
-            border-color: var(--neon-green) !important; 
-            box-shadow: 0 0 10px rgba(0,255,102,0.3), inset 0 0 5px rgba(0,255,102,0.2) !important; 
-            color: #fff !important; 
-            text-shadow: 0 0 5px var(--neon-green);
-        }
-        .wrong-option { 
-            background: rgba(255, 0, 85, 0.1) !important; 
-            border-color: var(--neon-red) !important; 
-            box-shadow: 0 0 10px rgba(255,0,85,0.3), inset 0 0 5px rgba(255,0,85,0.2) !important; 
-            color: #fff !important; 
-            text-shadow: 0 0 5px var(--neon-red);
-        }
-        
+        .error-item { background: rgba(255, 0, 85, 0.05); border-left: 4px solid var(--neon-red); padding: 20px; margin-bottom: 20px; border-radius: 4px; line-height: 1.6; border-top: 1px solid rgba(255,0,85,0.2); border-right: 1px solid rgba(255,0,85,0.2); border-bottom: 1px solid rgba(255,0,85,0.2); }
+        .correct-option { background: rgba(0, 255, 102, 0.1) !important; border-color: var(--neon-green) !important; box-shadow: 0 0 10px rgba(0,255,102,0.3), inset 0 0 5px rgba(0,255,102,0.2) !important; color: #fff !important; text-shadow: 0 0 5px var(--neon-green); }
+        .wrong-option { background: rgba(255, 0, 85, 0.1) !important; border-color: var(--neon-red) !important; box-shadow: 0 0 10px rgba(255,0,85,0.3), inset 0 0 5px rgba(255,0,85,0.2) !important; color: #fff !important; text-shadow: 0 0 5px var(--neon-red); }
         #instant-feedback { margin-top: 20px; padding: 18px; border-radius: 8px; display: none; background: rgba(0,0,0,0.6); }
-        .ref-box { margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 1rem; color: var(--text-dim); line-height: 1.7; }
-        .ref-box strong { color: var(--neon-yellow); text-shadow: 0 0 5px rgba(255,234,0,0.5); }
-
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
 </head>
@@ -303,7 +178,6 @@
         </div>
         <div class="question-text" id="q-text">題目載入中...</div>
         <div id="options-container"></div>
-        
         <div id="instant-feedback"></div>
 
         <div class="grid-2" style="margin-top: 30px;">
@@ -335,7 +209,6 @@
 <script>
     let currentMode = 'exam'; 
     let selectedExamType = ''; 
-    
     let filteredQuestions = [];
     let currentQIndex = 0;
     let userAnswers = []; 
@@ -343,8 +216,6 @@
     let evalMode = 'post';
     let timerInterval;
     let timeRemaining = 0;
-    
-    // 紀錄當前主題色
     let themeColor = 'blue';
 
     window.onload = function() {
@@ -389,41 +260,27 @@
         }
     }
 
-    // 年度排序 (小到大)
     function updateExamYears() {
         const level = document.getElementById('exam-level').value;
         const yearSelect = document.getElementById('exam-year');
         const batchSelect = document.getElementById('exam-batch');
-        
         yearSelect.innerHTML = '<option value="" disabled selected hidden>年度</option>';
         batchSelect.innerHTML = '<option value="" disabled selected hidden>梯次</option>';
-        
         const filteredQ = questionBank.exam.filter(q => q.level === level);
-        const years = [...new Set(filteredQ.map(q => {
-            return q.batch.includes('-') ? q.batch.split('-')[0] : q.batch;
-        }))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b)); 
-        
+        const years = [...new Set(filteredQ.map(q => { return q.batch.includes('-') ? q.batch.split('-')[0] : q.batch; }))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b)); 
         years.forEach(year => { yearSelect.innerHTML += `<option value="${year}">${year}</option>`; });
         checkExamReady();
     }
 
-    // 梯次排序 (小到大)
     function updateExamBatches() {
         const level = document.getElementById('exam-level').value;
         const year = document.getElementById('exam-year').value;
         const batchSelect = document.getElementById('exam-batch');
-        
         batchSelect.innerHTML = '<option value="" disabled selected hidden>梯次</option>';
-        
         const filteredQ = questionBank.exam.filter(q => q.level === level && q.batch.startsWith(year));
-        const batches = [...new Set(filteredQ.map(q => {
-            return q.batch.includes('-') ? q.batch.split('-')[1] : '無';
-        }))].filter(Boolean).sort((a, b) => {
-            if (a === '無') return 1;
-            if (b === '無') return -1;
-            return parseInt(a) - parseInt(b);
+        const batches = [...new Set(filteredQ.map(q => { return q.batch.includes('-') ? q.batch.split('-')[1] : '無'; }))].filter(Boolean).sort((a, b) => {
+            if (a === '無') return 1; if (b === '無') return -1; return parseInt(a) - parseInt(b);
         });
-        
         batches.forEach(b => { batchSelect.innerHTML += `<option value="${b}">${b}</option>`; });
         checkExamReady();
     }
@@ -432,14 +289,8 @@
         selectedExamType = type;
         const btnSingle = document.getElementById('btn-type-single');
         const btnMulti = document.getElementById('btn-type-multi');
-        
-        if (type === '單選') {
-            btnSingle.className = 'ui-block bg-blue';
-            btnMulti.className = 'ui-block bg-blue-light';
-        } else {
-            btnSingle.className = 'ui-block bg-blue-light';
-            btnMulti.className = 'ui-block bg-blue';
-        }
+        if (type === '單選') { btnSingle.className = 'ui-block bg-blue'; btnMulti.className = 'ui-block bg-blue-light'; } 
+        else { btnSingle.className = 'ui-block bg-blue-light'; btnMulti.className = 'ui-block bg-blue'; }
         checkExamReady();
     }
 
@@ -447,44 +298,25 @@
         const level = document.getElementById('exam-level').value;
         const year = document.getElementById('exam-year').value;
         const batch = document.getElementById('exam-batch').value;
-        
         const btnPost = document.getElementById('btn-start-exam-post');
         const btnInst = document.getElementById('btn-start-exam-instant');
-        
-        if (level && year && batch && selectedExamType) {
-            btnPost.className = 'ui-block bg-blue';
-            btnInst.className = 'ui-block bg-blue';
-        } else {
-            btnPost.className = 'ui-block bg-gray';
-            btnInst.className = 'ui-block bg-gray';
-        }
+        if (level && year && batch && selectedExamType) { btnPost.className = 'ui-block bg-blue'; btnInst.className = 'ui-block bg-blue'; } 
+        else { btnPost.className = 'ui-block bg-gray'; btnInst.className = 'ui-block bg-gray'; }
     }
 
     function checkLawReady() {
         const category = document.getElementById('law-category').value;
         const btnPost = document.getElementById('btn-start-law-post');
         const btnInst = document.getElementById('btn-start-law-instant');
-        
-        if (category) {
-            btnPost.className = 'ui-block bg-purple';
-            btnInst.className = 'ui-block bg-purple';
-        } else {
-            btnPost.className = 'ui-block bg-gray';
-            btnInst.className = 'ui-block bg-gray';
-        }
+        if (category) { btnPost.className = 'ui-block bg-purple'; btnInst.className = 'ui-block bg-purple'; } 
+        else { btnPost.className = 'ui-block bg-gray'; btnInst.className = 'ui-block bg-gray'; }
     }
 
     function startTimer() {
-        clearInterval(timerInterval); 
-        updateTimerUI();
+        clearInterval(timerInterval); updateTimerUI();
         timerInterval = setInterval(() => {
-            timeRemaining--;
-            updateTimerUI();
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                alert("⏳ 能源耗盡！系統將強制結算成績。");
-                finishTest(true); 
-            }
+            timeRemaining--; updateTimerUI();
+            if (timeRemaining <= 0) { clearInterval(timerInterval); alert("⏳ 能源耗盡！系統將強制結算成績。"); finishTest(true); }
         }, 1000);
     }
 
@@ -493,124 +325,71 @@
         const seconds = (timeRemaining % 60).toString().padStart(2, '0');
         const timerDisplay = document.getElementById('timer-display');
         timerDisplay.innerText = `⏳ ${minutes}:${seconds}`;
-        
-        // 配合主題色改變計時器顏色
-        if (timeRemaining <= 60 && timeRemaining > 0) { 
-            timerDisplay.className = 'timer-warning'; 
-        } else { 
-            timerDisplay.className = '';
-            timerDisplay.style.color = themeColor === 'blue' ? 'var(--neon-blue)' : 'var(--neon-purple)';
-            timerDisplay.style.textShadow = themeColor === 'blue' ? '0 0 5px var(--neon-blue)' : '0 0 5px var(--neon-purple)';
-        }
+        if (timeRemaining <= 60 && timeRemaining > 0) { timerDisplay.className = 'timer-warning'; } 
+        else { timerDisplay.className = ''; timerDisplay.style.color = themeColor === 'blue' ? 'var(--neon-blue)' : 'var(--neon-purple)'; timerDisplay.style.textShadow = themeColor === 'blue' ? '0 0 5px var(--neon-blue)' : '0 0 5px var(--neon-purple)'; }
     }
 
     function startTest(selectedEvalMode) {
         evalMode = selectedEvalMode;
-
         if (currentMode === 'exam') {
             const level = document.getElementById('exam-level').value;
             const year = document.getElementById('exam-year').value;
             let batch = document.getElementById('exam-batch').value;
-            
             if (!level || !year || !batch || !selectedExamType) return;
             const targetBatch = batch === '無' ? year : `${year}-${batch}`;
+            filteredQuestions = questionBank.exam.filter(q => q.level === level && q.batch === targetBatch && q.type === selectedExamType);
             
-            filteredQuestions = questionBank.exam.filter(q => 
-                q.level === level && q.batch === targetBatch && q.type === selectedExamType
-            );
-            
-            // 套用青藍色
-            document.getElementById('q-badge').style.borderColor = 'var(--neon-blue)';
-            document.getElementById('q-badge').style.color = 'var(--neon-blue)';
-            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-blue)';
-            document.getElementById('btn-next').className = 'ui-block bg-blue';
-            document.getElementById('btn-finish').className = 'ui-block bg-blue';
-            document.getElementById('final-score').style.color = 'var(--neon-blue)';
-            document.getElementById('btn-home').className = 'ui-block bg-blue';
-
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-blue)'; document.getElementById('q-badge').style.color = 'var(--neon-blue)'; document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-blue)';
+            document.getElementById('btn-next').className = 'ui-block bg-blue'; document.getElementById('btn-finish').className = 'ui-block bg-blue'; document.getElementById('final-score').style.color = 'var(--neon-blue)'; document.getElementById('btn-home').className = 'ui-block bg-blue';
         } else if (currentMode === 'law') {
             const category = document.getElementById('law-category').value;
             if (!category) return;
-            
             filteredQuestions = questionBank.law.filter(q => q.category === category);
             
-            // 套用雷射紫
-            document.getElementById('q-badge').style.borderColor = 'var(--neon-purple)';
-            document.getElementById('q-badge').style.color = 'var(--neon-purple)';
-            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-purple)';
-            document.getElementById('btn-next').className = 'ui-block bg-purple';
-            document.getElementById('btn-finish').className = 'ui-block bg-purple';
-            document.getElementById('final-score').style.color = 'var(--neon-purple)';
-            document.getElementById('btn-home').className = 'ui-block bg-purple';
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-purple)'; document.getElementById('q-badge').style.color = 'var(--neon-purple)'; document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-purple)';
+            document.getElementById('btn-next').className = 'ui-block bg-purple'; document.getElementById('btn-finish').className = 'ui-block bg-purple'; document.getElementById('final-score').style.color = 'var(--neon-purple)'; document.getElementById('btn-home').className = 'ui-block bg-purple';
         }
 
         if (filteredQuestions.length === 0) { alert("系統掃描：查無符合條件的數據模組！"); return; }
         
         userAnswers = new Array(filteredQuestions.length).fill(null);
         checkedQuestions = new Array(filteredQuestions.length).fill(false);
-        currentQIndex = 0;
-        timeRemaining = filteredQuestions.length * 90; 
-        
-        document.getElementById('setup-section').style.display = 'none';
-        document.getElementById('quiz-section').style.display = 'block';
-        
-        renderQuestion();
-        startTimer(); 
+        currentQIndex = 0; timeRemaining = filteredQuestions.length * 90; 
+        document.getElementById('setup-section').style.display = 'none'; document.getElementById('quiz-section').style.display = 'block';
+        renderQuestion(); startTimer(); 
     }
 
     function renderQuestion() {
         const q = filteredQuestions[currentQIndex];
         const isMulti = q.type === '複選';
-        
-        document.getElementById('instant-feedback').style.display = 'none';
-        document.getElementById('btn-check').style.display = 'none';
-        document.getElementById('btn-next').style.display = 'none';
-
+        document.getElementById('instant-feedback').style.display = 'none'; document.getElementById('btn-check').style.display = 'none'; document.getElementById('btn-next').style.display = 'none';
         document.getElementById('q-badge').innerText = q.type || '測驗';
         
-        // 複選題改用黃色霓虹提示
         if (isMulti) {
-            document.getElementById('q-badge').style.borderColor = 'var(--neon-yellow)';
-            document.getElementById('q-badge').style.color = 'var(--neon-yellow)';
-            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-yellow)';
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-yellow)'; document.getElementById('q-badge').style.color = 'var(--neon-yellow)'; document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-yellow)';
         } else {
-            // 恢復主題色
             const colorVar = themeColor === 'blue' ? 'var(--neon-blue)' : 'var(--neon-purple)';
-            document.getElementById('q-badge').style.borderColor = colorVar;
-            document.getElementById('q-badge').style.color = colorVar;
-            document.getElementById('q-badge').style.boxShadow = `0 0 5px ${colorVar}`;
+            document.getElementById('q-badge').style.borderColor = colorVar; document.getElementById('q-badge').style.color = colorVar; document.getElementById('q-badge').style.boxShadow = `0 0 5px ${colorVar}`;
         }
 
         document.getElementById('q-progress').innerText = `DATA: ${currentQIndex + 1} / ${filteredQuestions.length}`;
         document.getElementById('q-text').innerText = `[Q${currentQIndex + 1}] ${q.question}`;
 
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-        const labels = ['A', 'B', 'C', 'D'];
-        const currentAnswer = userAnswers[currentQIndex] || [];
+        const optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = '';
+        const labels = ['A', 'B', 'C', 'D']; const currentAnswer = userAnswers[currentQIndex] || [];
 
         q.options.forEach((optText, index) => {
             if (!optText) return; 
-            const labelValue = labels[index];
-            const isChecked = currentAnswer.includes(labelValue) ? 'checked' : '';
+            const labelValue = labels[index]; const isChecked = currentAnswer.includes(labelValue) ? 'checked' : '';
             const inputType = isMulti ? 'checkbox' : 'radio';
-            
-            // 動態選項高光顏色
-            const hoverClass = themeColor === 'blue' ? 'hover-blue' : 'hover-purple';
-            
             optionsContainer.innerHTML += `<label class="option-label" id="opt-${index}"><input type="${inputType}" name="q-option" value="${labelValue}" onchange="recordAnswer()" ${isChecked}><span>[${labelValue}] ${optText}</span></label>`;
         });
 
         if (evalMode === 'instant') {
-            if (checkedQuestions[currentQIndex]) {
-                applyInstantFeedback(true);
-            } else {
-                document.getElementById('btn-check').style.display = 'flex';
-            }
+            if (checkedQuestions[currentQIndex]) { applyInstantFeedback(true); } 
+            else { document.getElementById('btn-check').style.display = 'flex'; }
         } else {
-            if (currentQIndex < filteredQuestions.length - 1) {
-                document.getElementById('btn-next').style.display = 'flex';
-            }
+            if (currentQIndex < filteredQuestions.length - 1) { document.getElementById('btn-next').style.display = 'flex'; }
         }
     }
 
@@ -622,46 +401,38 @@
 
     function applyInstantFeedback(isReRender = false) {
         if (!isReRender) {
-            recordAnswer(); 
-            const uAns = userAnswers[currentQIndex];
+            recordAnswer(); const uAns = userAnswers[currentQIndex];
             if (!uAns || uAns.length === 0) { alert('警告：未選擇任何資料點！'); return; }
         }
-
         checkedQuestions[currentQIndex] = true;
         const q = filteredQuestions[currentQIndex];
         const uAnsStr = userAnswers[currentQIndex] ? userAnswers[currentQIndex].sort().join('') : '';
         const cAnsStr = String(q.answer).toUpperCase().replace(/\s+/g, '').split('').sort().join('');
         const isCorrect = uAnsStr === cAnsStr;
         
-        const feedbackDiv = document.getElementById('instant-feedback');
-        feedbackDiv.style.display = 'block';
-        
+        const feedbackDiv = document.getElementById('instant-feedback'); feedbackDiv.style.display = 'block';
         let htmlContent = '';
         if (isCorrect) {
             htmlContent += '<div style="font-weight:900; font-size:1.2rem; color:var(--neon-green); text-shadow:0 0 8px var(--neon-green); margin-bottom:10px;">[ VALID ] 解析正確！</div>';
-            feedbackDiv.style.border = '1px solid rgba(0,255,102,0.3)';
-            feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(0,255,102,0.1)';
+            feedbackDiv.style.border = '1px solid rgba(0,255,102,0.3)'; feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(0,255,102,0.1)';
         } else {
             htmlContent += `<div style="font-weight:900; font-size:1.2rem; color:var(--neon-red); text-shadow:0 0 8px var(--neon-red); margin-bottom:10px;">[ ERROR ] 系統判定錯誤！標準資料：${cAnsStr}</div>`;
-            feedbackDiv.style.border = '1px solid rgba(255,0,85,0.3)';
-            feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(255,0,85,0.1)';
+            feedbackDiv.style.border = '1px solid rgba(255,0,85,0.3)'; feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(255,0,85,0.1)';
         }
 
+        // 🎯 核心更新：完美整合 O 欄法令名稱 與 P 欄法令條文
         if (q.law_name || q.law_article || q.note) {
-            htmlContent += '<div class="ref-box" style="text-align: left;">';
-            if (q.law_name) htmlContent += `<strong>[法規源]</strong> ${q.law_name}<br>`;
-            if (q.law_article) htmlContent += `<strong>[條文庫]</strong> ${q.law_article}<br>`;
-            if (q.note) htmlContent += `<strong>[資料庫]</strong> ${q.note}<br>`;
+            htmlContent += '<div class="ref-box" style="text-align: left; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 8px;">';
+            if (q.law_name) htmlContent += `<strong><span style="color:var(--neon-yellow); font-size:1.1rem;">[法令名稱]</span></strong> <span style="color:#fff;">${q.law_name}</span><br><br>`;
+            if (q.law_article) htmlContent += `<strong><span style="color:var(--neon-yellow); font-size:1.1rem;">[法令條文]</span></strong> <span style="color:#aaa; line-height: 1.6;">${q.law_article}</span><br><br>`;
+            if (q.note) htmlContent += `<strong><span style="color:var(--neon-yellow); font-size:1.1rem;">[參考資料]</span></strong> <span style="color:#aaa;">${q.note}</span><br>`;
             htmlContent += '</div>';
         }
 
         feedbackDiv.innerHTML = htmlContent;
-
         const labels = document.querySelectorAll('.option-label');
         labels.forEach(label => {
-            const input = label.querySelector('input');
-            input.disabled = true; 
-            const val = input.value;
+            const input = label.querySelector('input'); input.disabled = true; const val = input.value;
             label.classList.remove('correct-option', 'wrong-option');
             if (cAnsStr.includes(val)) label.classList.add('correct-option');
             else if (uAnsStr.includes(val)) label.classList.add('wrong-option');
@@ -675,29 +446,24 @@
 
     function finishTest(isAutoSubmit = false) {
         clearInterval(timerInterval);
-        
         if (!isAutoSubmit) {
-            recordAnswer(); 
-            const unans = userAnswers.filter(ans => !ans || ans.length === 0).length;
-            if (unans > 0) { 
-                if (!confirm(`警告：尚有 ${unans} 筆資料未輸入，確定要強制關閉掃描並結算嗎？`)) { startTimer(); return; }
-            }
+            recordAnswer(); const unans = userAnswers.filter(ans => !ans || ans.length === 0).length;
+            if (unans > 0) { if (!confirm(`警告：尚有 ${unans} 筆資料未輸入，確定要強制關閉掃描並結算嗎？`)) { startTimer(); return; } }
         }
 
-        let correctCount = 0;
-        let errorHtml = '';
+        let correctCount = 0; let errorHtml = '';
         filteredQuestions.forEach((q, index) => {
             const uAns = userAnswers[index] ? userAnswers[index].sort().join('') : '未輸入';
             const cAns = String(q.answer).toUpperCase().replace(/\s+/g, '').split('').sort().join('');
-            if (uAns === cAns) {
-                correctCount++;
-            } else {
+            if (uAns === cAns) { correctCount++; } 
+            else {
                 let refInfo = '';
+                // 🎯 核心更新：完美整合 O 欄法令名稱 與 P 欄法令條文
                 if (q.law_name || q.law_article || q.note) {
-                    refInfo += '<div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.1);">';
-                    if (q.law_name) refInfo += `<strong style="color:var(--neon-yellow);">[法規]</strong> ${q.law_name}<br>`;
-                    if (q.law_article) refInfo += `<strong style="color:var(--neon-yellow);">[條文]</strong> ${q.law_article}<br>`;
-                    if (q.note) refInfo += `<strong style="color:var(--neon-yellow);">[參考]</strong> ${q.note}<br>`;
+                    refInfo += '<div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.1); line-height: 1.6;">';
+                    if (q.law_name) refInfo += `<strong><span style="color:var(--neon-yellow); font-size:1.05rem;">[法令名稱]</span></strong> <span style="color:#fff;">${q.law_name}</span><br><br>`;
+                    if (q.law_article) refInfo += `<strong><span style="color:var(--neon-yellow); font-size:1.05rem;">[法令條文]</span></strong> <span style="color:#aaa;">${q.law_article}</span><br><br>`;
+                    if (q.note) refInfo += `<strong><span style="color:var(--neon-yellow); font-size:1.05rem;">[參考資料]</span></strong> <span style="color:#aaa;">${q.note}</span><br>`;
                     refInfo += '</div>';
                 }
 
@@ -705,12 +471,9 @@
             }
         });
 
-        document.getElementById('quiz-section').style.display = 'none';
-        document.getElementById('result-section').style.display = 'block';
-        
+        document.getElementById('quiz-section').style.display = 'none'; document.getElementById('result-section').style.display = 'block';
         const score = Math.round((correctCount / filteredQuestions.length) * 100);
-        document.getElementById('final-score').innerText = `${score} %`;
-        document.getElementById('score-detail').innerText = `掃描 ${filteredQuestions.length} 題，正確 ${correctCount} 題`;
+        document.getElementById('final-score').innerText = `${score} %`; document.getElementById('score-detail').innerText = `掃描 ${filteredQuestions.length} 題，正確 ${correctCount} 題`;
 
         const errorContainer = document.getElementById('error-log-container');
         if (errorHtml === '') { errorContainer.innerHTML = '<h3 style="color:var(--neon-green); text-align:center; text-shadow:0 0 10px var(--neon-green);">[ SYSTEM ] 完美通關！資料吻合度 100%</h3>'; } 
