@@ -3,57 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>職安衛學科測驗系統</title>
+    <title>職安衛學科測驗系統 - 科技版</title>
     <link rel="manifest" href="manifest.json">
     <script>document.write('<script src="questions.js?t=' + new Date().getTime() + '"><\/script>');</script>
     <style>
         :root {
-            --primary-color: #2b6cb0; --secondary-color: #4299e1;
-            --bg-color: #f7fafc; --card-bg: #ffffff;
-            --text-main: #2d3748; --border-color: #e2e8f0;
-            --success-color: #48bb78; --danger-color: #e53e3e;
+            /* 科技感暗黑背景 */
+            --bg-dark: #050a15;
+            --panel-bg: rgba(10, 15, 30, 0.85);
+            
+            /* 霓虹發光色系 */
+            --neon-blue: #00f3ff;
+            --neon-blue-dim: rgba(0, 243, 255, 0.2);
+            --neon-purple: #bc13fe;
+            --neon-purple-dim: rgba(188, 19, 254, 0.2);
+            --neon-green: #00ff66;
+            --neon-red: #ff0055;
+            --neon-yellow: #ffea00;
+            
+            /* 文字色 */
+            --text-main: #e0ffff;
+            --text-dim: #8ba4b5;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { background-color: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px; margin-top: 20px; }
-        h1 { text-align: center; color: var(--primary-color); margin-bottom: 25px; font-size: 1.5rem; }
-        .form-group { margin-bottom: 20px; display: none; }
-        .form-group.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; }
-        select, button { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
-        select:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); }
-        .level-1-buttons { display: flex; gap: 10px; margin-bottom: 25px; }
-        .btn-mode, .btn-action { flex: 1; background-color: #edf2f7; color: var(--text-main); border: 2px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.2s; }
-        .btn-mode.selected { background-color: #ebf8ff; border-color: var(--primary-color); color: var(--primary-color); }
-        .btn-submit { background-color: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 15px; display: none; }
-        .btn-submit:hover { background-color: #1a365d; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-dark); 
+            /* 科技網格背景 */
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.1) 0%, transparent 60%),
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 100vw 100vh, 30px 30px, 30px 30px;
+            color: var(--text-main); 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+        
+        /* 半透明玻璃科技面板 */
+        .container { 
+            background: var(--panel-bg); 
+            padding: 35px 30px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            backdrop-filter: blur(10px);
+            width: 100%; 
+            max-width: 650px; 
+            margin-top: 10px; 
+        }
+        
+        /* 霓虹標題 */
+        h1 { 
+            text-align: center; 
+            margin-bottom: 35px; 
+            font-size: 2.2rem; 
+            letter-spacing: 4px; 
+            color: transparent;
+            -webkit-text-stroke: 1px var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0,243,255,0.5);
+            font-weight: 900;
+        }
+        
+        /* 網格佈局 */
+        .grid-1 { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 18px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+        
+        /* 科技發光模組 (大塊狀 UI) */
+        .ui-block {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 60px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: rgba(0, 15, 30, 0.8);
+        }
+        
+        /* 科技掃描線效果 */
+        .ui-block::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(255,255,255,0.05) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* 按鈕特化 */
+        button.ui-block { cursor: pointer; }
+        button.ui-block:hover { filter: brightness(1.2); transform: scale(1.02); }
+        button.ui-block:active { transform: scale(0.98); }
+        
+        /* 下拉選單特化 */
+        select.ui-block {
+            cursor: pointer;
+            appearance: none;
+            text-align: center;
+            text-align-last: center;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%2300f3ff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: calc(100% - 15px);
+            background-position-y: center;
+            padding: 0 40px;
+        }
+        select.ui-block option { background-color: #0b1120; color: var(--neon-blue); font-size: 1rem; }
+
+        /* ====== 霓虹顏色控制 (藍/紫) ====== */
+        
+        /* 歷屆試題 (青藍光) */
+        .bg-blue { 
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 10px var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+        .bg-blue-light { 
+            border: 1px solid var(--neon-blue-dim);
+            color: rgba(0, 243, 255, 0.6);
+            box-shadow: none; text-shadow: none;
+        }
+
+        /* 考題分類 (雷射紫光) */
+        .bg-purple { 
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 10px var(--neon-purple), inset 0 0 10px var(--neon-purple);
+            text-shadow: 0 0 8px var(--neon-purple);
+        }
+        select.bg-purple {
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23bc13fe" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        }
+        select.bg-purple option { color: var(--neon-purple); }
+        
+        .bg-purple-light { 
+            border: 1px solid var(--neon-purple-dim);
+            color: rgba(188, 19, 254, 0.6);
+            box-shadow: none; text-shadow: none;
+        }
+
+        /* 禁用狀態 */
+        .bg-gray { 
+            border: 1px dashed #334;
+            background: rgba(255,255,255,0.03);
+            color: #556; 
+            pointer-events: none; box-shadow: none; text-shadow: none;
+        }
+
+        /* ====== 測驗區與結果區 ====== */
         #quiz-section, #result-section { display: none; }
         
-        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,243,255,0.3); }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .question-badge { background-color: var(--secondary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
-        #timer-display { font-weight: bold; color: #4a5568; font-family: monospace; font-size: 1.1rem; }
-        .timer-warning { color: var(--danger-color) !important; animation: blink 1s infinite; }
         
-        .question-text { font-size: 1.1rem; line-height: 1.5; margin-bottom: 20px; font-weight: bold; }
-        .option-label { display: flex; align-items: center; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s; }
-        .option-label:hover { background-color: #f7fafc; }
-        .option-label input { margin-right: 12px; transform: scale(1.2); }
-        .nav-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .btn-action { background-color: var(--primary-color); color: white; border: none; }
-        .btn-action:disabled { background-color: #cbd5e0; cursor: not-allowed; }
-        .result-score { text-align: center; font-size: 3rem; font-weight: bold; color: var(--primary-color); margin: 20px 0; }
-        .error-log { margin-top: 20px; }
-        .error-item { background-color: #fff5f5; border-left: 4px solid var(--danger-color); padding: 10px 15px; margin-bottom: 10px; border-radius: 4px; }
+        .question-badge { 
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--neon-blue); 
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 5px var(--neon-blue);
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+        }
         
-        .correct-option { background-color: #c6f6d5 !important; border-color: #48bb78 !important; font-weight: bold; }
-        .wrong-option { background-color: #fed7d7 !important; border-color: #e53e3e !important; }
-        #instant-feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; border: 1px solid transparent; }
+        #timer-display { font-weight: bold; color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); font-family: monospace; font-size: 1.3rem; }
+        .timer-warning { color: var(--neon-red) !important; text-shadow: 0 0 8px var(--neon-red) !important; animation: blink 1s infinite; }
         
-        .ref-box { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e0; font-size: 0.95rem; color: #4a5568; line-height: 1.6; }
-        .ref-box strong { color: #2d3748; }
+        .question-text { font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; font-weight: 600; color: #fff; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
+        
+        /* 選項樣式 */
+        .option-label { 
+            display: flex; 
+            align-items: center; 
+            padding: 16px 20px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            font-size: 1.1rem; 
+            color: #ccc;
+        }
+        .option-label:hover { 
+            background: rgba(0, 243, 255, 0.1); 
+            border-color: var(--neon-blue); 
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+        .option-label input { margin-right: 18px; transform: scale(1.4); }
+        
+        .result-score { text-align: center; font-size: 4rem; font-weight: bold; margin: 25px 0; letter-spacing: 2px; text-shadow: 0 0 15px currentColor; }
+        
+        /* 回饋與錯題區 */
+        .error-log { margin-top: 30px; }
+        .error-item { 
+            background: rgba(255, 0, 85, 0.05); 
+            border-left: 4px solid var(--neon-red); 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 4px; 
+            line-height: 1.6; 
+            border-top: 1px solid rgba(255,0,85,0.2);
+            border-right: 1px solid rgba(255,0,85,0.2);
+            border-bottom: 1px solid rgba(255,0,85,0.2);
+        }
+        
+        /* 螢光對錯標示 */
+        .correct-option { 
+            background: rgba(0, 255, 102, 0.1) !important; 
+            border-color: var(--neon-green) !important; 
+            box-shadow: 0 0 10px rgba(0,255,102,0.3), inset 0 0 5px rgba(0,255,102,0.2) !important; 
+            color: #fff !important; 
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+        .wrong-option { 
+            background: rgba(255, 0, 85, 0.1) !important; 
+            border-color: var(--neon-red) !important; 
+            box-shadow: 0 0 10px rgba(255,0,85,0.3), inset 0 0 5px rgba(255,0,85,0.2) !important; 
+            color: #fff !important; 
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+        
+        #instant-feedback { margin-top: 20px; padding: 18px; border-radius: 8px; display: none; background: rgba(0,0,0,0.6); }
+        .ref-box { margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 1rem; color: var(--text-dim); line-height: 1.7; }
+        .ref-box strong { color: var(--neon-yellow); text-shadow: 0 0 5px rgba(255,234,0,0.5); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
 </head>
 <body>
@@ -62,60 +251,46 @@
     <h1>職安衛學科測驗系統</h1>
 
     <div id="setup-section">
-        <label>第一層：請選擇測驗模式</label>
-        <div class="level-1-buttons">
-            <button class="btn-mode" id="btn-exam" onclick="setMode('exam')">歷屆考試</button>
-            <button class="btn-mode" id="btn-law" onclick="setMode('law')">分類法規</button>
+        <div class="grid-2">
+            <button class="ui-block bg-blue" id="btn-mode-exam" onclick="setMode('exam')">歷屆試題</button>
+            <button class="ui-block bg-purple-light" id="btn-mode-law" onclick="setMode('law')">考題分類</button>
         </div>
 
-        <div id="exam-flow">
-            <div class="form-group" id="group-level2">
-                <label>第二層：考試級別</label>
-                <select id="exam-type" onchange="updateBatches()">
-                    <option value="">請選擇...</option>
+        <div id="flow-exam" style="display: block;">
+            <div class="grid-1">
+                <select class="ui-block bg-blue" id="exam-level" onchange="updateExamYears()">
+                    <option value="" disabled selected hidden>考試級別</option>
                 </select>
             </div>
-            <div class="form-group" id="group-level3">
-                <label>第三層：年度及梯次</label>
-                <select id="exam-batch" onchange="checkExamFlow()">
-                    <option value="">請先選擇考試級別...</option>
+            <div class="grid-2">
+                <select class="ui-block bg-blue" id="exam-year" onchange="updateExamBatches()">
+                    <option value="" disabled selected hidden>年度</option>
+                </select>
+                <select class="ui-block bg-blue" id="exam-batch" onchange="checkExamReady()">
+                    <option value="" disabled selected hidden>梯次</option>
                 </select>
             </div>
-            <div class="form-group" id="group-level4">
-                <label>第四層：題型選擇</label>
-                <select id="question-type" onchange="updateLevel5()">
-                    <option value="">請選擇...</option>
-                    <option value="單選">單選題</option>
-                    <option value="複選">複選題</option>
-                    <option value="全部">全部題型</option>
-                </select>
+            <div class="grid-2">
+                <button class="ui-block bg-blue-light" id="btn-type-single" onclick="setExamType('單選')">單選題</button>
+                <button class="ui-block bg-blue-light" id="btn-type-multi" onclick="setExamType('複選')">複選題</button>
             </div>
-            <div class="form-group" id="group-level5">
-                <label>第五層：測驗範圍</label>
-                <select id="question-range" onchange="checkExamFlow()">
-                    <option value="">請選擇...</option>
-                </select>
+            <div class="grid-2" style="margin-top: 35px;">
+                <button class="ui-block bg-gray" id="btn-start-exam-post" onclick="startTest('post')">考後全評</button>
+                <button class="ui-block bg-gray" id="btn-start-exam-instant" onclick="startTest('instant')">即測即評</button>
             </div>
         </div>
 
-        <div id="law-flow">
-            <div class="form-group" id="group-law-category">
-                <label>第二層：法規類別</label>
-                <select id="law-category" onchange="checkLawFlow()">
-                    <option value="">請選擇...</option>
+        <div id="flow-law" style="display: none;">
+            <div class="grid-1">
+                <select class="ui-block bg-purple" id="law-category" onchange="checkLawReady()">
+                    <option value="" disabled selected hidden>法規分類</option>
                 </select>
             </div>
+            <div class="grid-2" style="margin-top: 35px;">
+                <button class="ui-block bg-gray" id="btn-start-law-post" onclick="startTest('post')">考後全評</button>
+                <button class="ui-block bg-gray" id="btn-start-law-instant" onclick="startTest('instant')">即測即評</button>
+            </div>
         </div>
-
-        <div class="form-group" id="group-eval-mode" style="border-top: 2px dashed var(--border-color); padding-top: 15px; margin-top: 20px;">
-            <label>最終確認：請選擇評量模式</label>
-            <select id="eval-mode">
-                <option value="post">考後全評 (作答完統一結算成績)</option>
-                <option value="instant">即測即評 (每題作答完可看解析)</option>
-            </select>
-        </div>
-
-        <button class="btn-submit" id="btn-start" onclick="startTest()">開始測驗</button>
     </div>
 
     <div id="quiz-section">
@@ -124,150 +299,178 @@
                 <span class="question-badge" id="q-badge">單選題</span>
                 <span id="timer-display">⏳ 00:00</span>
             </div>
-            <span style="font-weight:bold; color:#718096;" id="q-progress">1 / 20</span>
+            <span style="font-weight:bold; color:var(--text-dim); font-size:1.1rem;" id="q-progress">1 / 20</span>
         </div>
         <div class="question-text" id="q-text">題目載入中...</div>
         <div id="options-container"></div>
         
         <div id="instant-feedback"></div>
 
-        <div class="nav-buttons">
-            <button class="btn-action" style="background-color: #718096;" onclick="location.reload()">放棄測驗</button>
-            <button class="btn-action" id="btn-prev" onclick="prevQuestion()">上一題</button>
-            <button class="btn-action" id="btn-check" style="background-color: #ed8936; display:none;" onclick="applyInstantFeedback()">對答案</button>
-            <button class="btn-action" id="btn-next" onclick="nextQuestion()">下一題</button>
+        <div class="grid-2" style="margin-top: 30px;">
+            <button class="ui-block" style="border: 1px solid #556; color: #8ba4b5; pointer-events: auto;" onclick="location.reload()">放棄測驗</button>
+            <button class="ui-block" id="btn-check" style="display:none; border:2px solid var(--neon-yellow); box-shadow:0 0 10px var(--neon-yellow), inset 0 0 10px rgba(255,234,0,0.3); color:#fff; text-shadow:0 0 5px var(--neon-yellow);" onclick="applyInstantFeedback()">對答案</button>
+            <button class="ui-block" id="btn-next" style="display:none;" onclick="nextQuestion()">下一題</button>
         </div>
         
-        <button class="btn-submit" id="btn-finish" style="margin-top: 15px; width:100%; display:block;" onclick="finishTest()">提早交卷 / 結算成績</button>
+        <div class="grid-1" style="margin-top: 15px;">
+            <button class="ui-block" id="btn-finish" onclick="finishTest()">提早交卷 / 結算成績</button>
+        </div>
     </div>
 
     <div id="result-section">
-        <h2 style="text-align: center;">測驗完成！</h2>
+        <h2 style="text-align: center; color: #fff; letter-spacing: 2px;">測驗完成！</h2>
         <div class="result-score" id="final-score">100 分</div>
-        <p style="text-align: center; color: #718096;" id="score-detail">共 20 題，答對 20 題</p>
+        <p style="text-align: center; color: var(--text-dim); font-size: 1.25rem; font-weight: bold;" id="score-detail">共 20 題，答對 20 題</p>
         <div class="error-log" id="error-log-container">
-            <h3 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 5px;">錯題回顧</h3>
+            <h3 style="border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; color: #ccc;">錯題回顧</h3>
             <div id="error-list"></div>
         </div>
-        <button class="btn-action" style="margin-top: 30px;" onclick="location.reload()">回首頁重新測驗</button>
+        <div class="grid-1" style="margin-top: 40px;">
+            <button class="ui-block" id="btn-home" onclick="location.reload()">系統重啟 (回首頁)</button>
+        </div>
     </div>
 
 </div>
 
 <script>
-    let currentMode = '';
+    let currentMode = 'exam'; 
+    let selectedExamType = ''; 
+    
     let filteredQuestions = [];
     let currentQIndex = 0;
     let userAnswers = []; 
     let checkedQuestions = []; 
     let evalMode = 'post';
-
     let timerInterval;
     let timeRemaining = 0;
+    
+    // 紀錄當前主題色
+    let themeColor = 'blue';
 
     window.onload = function() {
         if (typeof questionBank !== 'undefined') {
             const levels = [...new Set(questionBank.exam.map(q => q.level))].filter(Boolean);
-            const levelSelect = document.getElementById('exam-type');
+            const levelSelect = document.getElementById('exam-level');
             levels.forEach(level => { levelSelect.innerHTML += `<option value="${level}">${level}</option>`; });
 
             const categoryCounts = {};
             questionBank.law.forEach(q => {
                 if (q.category) { categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1; }
             });
-
             const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
             const categorySelect = document.getElementById('law-category');
             sortedCategories.forEach(([cat, count]) => {
                 categorySelect.innerHTML += `<option value="${cat}">${cat} (${count}題)</option>`;
             });
+
+            setMode('exam');
         } else {
-            console.error("找不到 questions.js 題庫！");
+            alert("系統錯誤：找不到題庫資料庫！");
         }
     };
 
-    function updateBatches() {
-        const selectedLevel = document.getElementById('exam-type').value;
-        const batchSelect = document.getElementById('exam-batch');
-        batchSelect.innerHTML = '<option value="">請選擇...</option>';
-        document.getElementById('question-type').value = '';
-        document.getElementById('question-range').innerHTML = '<option value="">請選擇...</option>';
-        if (selectedLevel) {
-            const batches = [...new Set(questionBank.exam.filter(q => q.level === selectedLevel).map(q => q.batch))].filter(Boolean).sort().reverse(); 
-            batches.forEach(batch => { batchSelect.innerHTML += `<option value="${batch}">${batch}</option>`; });
-            document.getElementById('group-level3').classList.add('active');
-        } else {
-            document.getElementById('group-level3').classList.remove('active');
-        }
-        checkExamFlow();
-    }
-
     function setMode(mode) {
         currentMode = mode;
-        document.getElementById('btn-exam').classList.remove('selected');
-        document.getElementById('btn-law').classList.remove('selected');
-        document.getElementById(`btn-${mode}`).classList.add('selected');
-        resetForms();
-        if (mode === 'exam') document.getElementById('group-level2').classList.add('active');
-        else if (mode === 'law') document.getElementById('group-law-category').classList.add('active');
+        const btnExam = document.getElementById('btn-mode-exam');
+        const btnLaw = document.getElementById('btn-mode-law');
+        
+        if (mode === 'exam') {
+            themeColor = 'blue';
+            btnExam.className = 'ui-block bg-blue';
+            btnLaw.className = 'ui-block bg-purple-light';
+            document.getElementById('flow-exam').style.display = 'block';
+            document.getElementById('flow-law').style.display = 'none';
+        } else {
+            themeColor = 'purple';
+            btnExam.className = 'ui-block bg-blue-light';
+            btnLaw.className = 'ui-block bg-purple';
+            document.getElementById('flow-exam').style.display = 'none';
+            document.getElementById('flow-law').style.display = 'block';
+        }
     }
 
-    function resetForms() {
-        document.querySelectorAll('.form-group').forEach(g => { g.classList.remove('active'); const select = g.querySelector('select'); if (select) select.value = ''; });
-        document.getElementById('group-eval-mode').classList.remove('active');
-        document.getElementById('btn-start').style.display = 'none';
-        document.getElementById('exam-batch').innerHTML = '<option value="">請先選擇考試級別...</option>';
+    // 年度排序 (小到大)
+    function updateExamYears() {
+        const level = document.getElementById('exam-level').value;
+        const yearSelect = document.getElementById('exam-year');
+        const batchSelect = document.getElementById('exam-batch');
+        
+        yearSelect.innerHTML = '<option value="" disabled selected hidden>年度</option>';
+        batchSelect.innerHTML = '<option value="" disabled selected hidden>梯次</option>';
+        
+        const filteredQ = questionBank.exam.filter(q => q.level === level);
+        const years = [...new Set(filteredQ.map(q => {
+            return q.batch.includes('-') ? q.batch.split('-')[0] : q.batch;
+        }))].filter(Boolean).sort((a, b) => parseInt(a) - parseInt(b)); 
+        
+        years.forEach(year => { yearSelect.innerHTML += `<option value="${year}">${year}</option>`; });
+        checkExamReady();
     }
 
-    function checkExamFlow() {
-        const type = document.getElementById('exam-type').value;
+    // 梯次排序 (小到大)
+    function updateExamBatches() {
+        const level = document.getElementById('exam-level').value;
+        const year = document.getElementById('exam-year').value;
+        const batchSelect = document.getElementById('exam-batch');
+        
+        batchSelect.innerHTML = '<option value="" disabled selected hidden>梯次</option>';
+        
+        const filteredQ = questionBank.exam.filter(q => q.level === level && q.batch.startsWith(year));
+        const batches = [...new Set(filteredQ.map(q => {
+            return q.batch.includes('-') ? q.batch.split('-')[1] : '無';
+        }))].filter(Boolean).sort((a, b) => {
+            if (a === '無') return 1;
+            if (b === '無') return -1;
+            return parseInt(a) - parseInt(b);
+        });
+        
+        batches.forEach(b => { batchSelect.innerHTML += `<option value="${b}">${b}</option>`; });
+        checkExamReady();
+    }
+
+    function setExamType(type) {
+        selectedExamType = type;
+        const btnSingle = document.getElementById('btn-type-single');
+        const btnMulti = document.getElementById('btn-type-multi');
+        
+        if (type === '單選') {
+            btnSingle.className = 'ui-block bg-blue';
+            btnMulti.className = 'ui-block bg-blue-light';
+        } else {
+            btnSingle.className = 'ui-block bg-blue-light';
+            btnMulti.className = 'ui-block bg-blue';
+        }
+        checkExamReady();
+    }
+
+    function checkExamReady() {
+        const level = document.getElementById('exam-level').value;
+        const year = document.getElementById('exam-year').value;
         const batch = document.getElementById('exam-batch').value;
-        const qType = document.getElementById('question-type').value;
-        const range = document.getElementById('question-range').value;
-        const btnStart = document.getElementById('btn-start');
-        const groupEval = document.getElementById('group-eval-mode');
         
-        if (type && batch) document.getElementById('group-level4').classList.add('active');
-        else document.getElementById('group-level4').classList.remove('active');
+        const btnPost = document.getElementById('btn-start-exam-post');
+        const btnInst = document.getElementById('btn-start-exam-instant');
         
-        if (type && batch && qType && (range || qType === '全部')) {
-            groupEval.classList.add('active');
-            btnStart.style.display = 'block';
+        if (level && year && batch && selectedExamType) {
+            btnPost.className = 'ui-block bg-blue';
+            btnInst.className = 'ui-block bg-blue';
         } else {
-            groupEval.classList.remove('active');
-            btnStart.style.display = 'none';
+            btnPost.className = 'ui-block bg-gray';
+            btnInst.className = 'ui-block bg-gray';
         }
     }
 
-    function updateLevel5() {
-        const qType = document.getElementById('question-type').value;
-        const group5 = document.getElementById('group-level5');
-        const rangeSelect = document.getElementById('question-range');
-        rangeSelect.innerHTML = '<option value="">請選擇...</option>';
-        if (qType === '單選') {
-            group5.classList.add('active');
-            rangeSelect.innerHTML += `<option value="1-20">第 1-20 題</option><option value="21-40">第 21-40 題</option><option value="41-60">第 41-60 題</option><option value="random-20">隨機 20 題</option><option value="all-60">全部 60 題</option>`;
-        } else if (qType === '複選') {
-            group5.classList.add('active');
-            rangeSelect.innerHTML += `<option value="random-10">隨機 10 題</option><option value="all-20">全部 20 題</option>`;
-        } else {
-            group5.classList.remove('active');
-            rangeSelect.value = '';
-        }
-        checkExamFlow();
-    }
-
-    function checkLawFlow() {
+    function checkLawReady() {
         const category = document.getElementById('law-category').value;
-        const btnStart = document.getElementById('btn-start');
-        const groupEval = document.getElementById('group-eval-mode');
+        const btnPost = document.getElementById('btn-start-law-post');
+        const btnInst = document.getElementById('btn-start-law-instant');
         
         if (category) {
-            groupEval.classList.add('active');
-            btnStart.style.display = 'block';
+            btnPost.className = 'ui-block bg-purple';
+            btnInst.className = 'ui-block bg-purple';
         } else {
-            groupEval.classList.remove('active');
-            btnStart.style.display = 'none';
+            btnPost.className = 'ui-block bg-gray';
+            btnInst.className = 'ui-block bg-gray';
         }
     }
 
@@ -279,7 +482,7 @@
             updateTimerUI();
             if (timeRemaining <= 0) {
                 clearInterval(timerInterval);
-                alert("⏳ 時間到！系統將自動為您交卷結算。");
+                alert("⏳ 能源耗盡！系統將強制結算成績。");
                 finishTest(true); 
             }
         }, 1000);
@@ -290,39 +493,58 @@
         const seconds = (timeRemaining % 60).toString().padStart(2, '0');
         const timerDisplay = document.getElementById('timer-display');
         timerDisplay.innerText = `⏳ ${minutes}:${seconds}`;
-        if (timeRemaining <= 60 && timeRemaining > 0) { timerDisplay.classList.add('timer-warning'); } 
-        else { timerDisplay.classList.remove('timer-warning'); }
+        
+        // 配合主題色改變計時器顏色
+        if (timeRemaining <= 60 && timeRemaining > 0) { 
+            timerDisplay.className = 'timer-warning'; 
+        } else { 
+            timerDisplay.className = '';
+            timerDisplay.style.color = themeColor === 'blue' ? 'var(--neon-blue)' : 'var(--neon-purple)';
+            timerDisplay.style.textShadow = themeColor === 'blue' ? '0 0 5px var(--neon-blue)' : '0 0 5px var(--neon-purple)';
+        }
     }
 
-    function startTest() {
-        if (typeof questionBank === 'undefined') { alert("系統找不到題庫 (questions.js)！"); return; }
-        evalMode = document.getElementById('eval-mode').value;
+    function startTest(selectedEvalMode) {
+        evalMode = selectedEvalMode;
 
         if (currentMode === 'exam') {
-            const type = document.getElementById('exam-type').value;
-            const batch = document.getElementById('exam-batch').value;
-            const qType = document.getElementById('question-type').value;
-            const range = document.getElementById('question-range').value;
+            const level = document.getElementById('exam-level').value;
+            const year = document.getElementById('exam-year').value;
+            let batch = document.getElementById('exam-batch').value;
             
-            filteredQuestions = questionBank.exam.filter(q => q.level === type && q.batch === batch && (qType === '全部' || q.type === qType));
+            if (!level || !year || !batch || !selectedExamType) return;
+            const targetBatch = batch === '無' ? year : `${year}-${batch}`;
             
-            // ★★★ 核心修正：改用陣列的切片 (Slice) 功能，完全無視 Excel 原本的奇異題號 ★★★
-            if (qType !== '全部' && range) {
-                if (range.startsWith('random')) {
-                    const count = parseInt(range.split('-')[1]);
-                    filteredQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, count);
-                } else if (!range.startsWith('all')) {
-                    const [min, max] = range.split('-').map(Number);
-                    // 舉例：選 1-20 題，就精準切出陣列的第 0 個到第 19 個 (共 20 題)
-                    filteredQuestions = filteredQuestions.slice(min - 1, max);
-                }
-            }
+            filteredQuestions = questionBank.exam.filter(q => 
+                q.level === level && q.batch === targetBatch && q.type === selectedExamType
+            );
+            
+            // 套用青藍色
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-blue)';
+            document.getElementById('q-badge').style.color = 'var(--neon-blue)';
+            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-blue)';
+            document.getElementById('btn-next').className = 'ui-block bg-blue';
+            document.getElementById('btn-finish').className = 'ui-block bg-blue';
+            document.getElementById('final-score').style.color = 'var(--neon-blue)';
+            document.getElementById('btn-home').className = 'ui-block bg-blue';
+
         } else if (currentMode === 'law') {
             const category = document.getElementById('law-category').value;
+            if (!category) return;
+            
             filteredQuestions = questionBank.law.filter(q => q.category === category);
+            
+            // 套用雷射紫
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-purple)';
+            document.getElementById('q-badge').style.color = 'var(--neon-purple)';
+            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-purple)';
+            document.getElementById('btn-next').className = 'ui-block bg-purple';
+            document.getElementById('btn-finish').className = 'ui-block bg-purple';
+            document.getElementById('final-score').style.color = 'var(--neon-purple)';
+            document.getElementById('btn-home').className = 'ui-block bg-purple';
         }
 
-        if (filteredQuestions.length === 0) { alert("查無符合條件的題目！請重新選擇。"); return; }
+        if (filteredQuestions.length === 0) { alert("系統掃描：查無符合條件的數據模組！"); return; }
         
         userAnswers = new Array(filteredQuestions.length).fill(null);
         checkedQuestions = new Array(filteredQuestions.length).fill(false);
@@ -343,14 +565,24 @@
         document.getElementById('instant-feedback').style.display = 'none';
         document.getElementById('btn-check').style.display = 'none';
         document.getElementById('btn-next').style.display = 'none';
-        document.getElementById('btn-prev').disabled = currentQIndex === 0;
 
         document.getElementById('q-badge').innerText = q.type || '測驗';
-        document.getElementById('q-badge').style.backgroundColor = isMulti ? '#ed8936' : 'var(--secondary-color)';
-        document.getElementById('q-progress').innerText = `${currentQIndex + 1} / ${filteredQuestions.length}`;
         
-        // 為了畫面乾淨，把原本又長又亂的題號隱藏，直接秀出題目
-        document.getElementById('q-text').innerText = `${currentQIndex + 1}. ${q.question}`;
+        // 複選題改用黃色霓虹提示
+        if (isMulti) {
+            document.getElementById('q-badge').style.borderColor = 'var(--neon-yellow)';
+            document.getElementById('q-badge').style.color = 'var(--neon-yellow)';
+            document.getElementById('q-badge').style.boxShadow = '0 0 5px var(--neon-yellow)';
+        } else {
+            // 恢復主題色
+            const colorVar = themeColor === 'blue' ? 'var(--neon-blue)' : 'var(--neon-purple)';
+            document.getElementById('q-badge').style.borderColor = colorVar;
+            document.getElementById('q-badge').style.color = colorVar;
+            document.getElementById('q-badge').style.boxShadow = `0 0 5px ${colorVar}`;
+        }
+
+        document.getElementById('q-progress').innerText = `DATA: ${currentQIndex + 1} / ${filteredQuestions.length}`;
+        document.getElementById('q-text').innerText = `[Q${currentQIndex + 1}] ${q.question}`;
 
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
@@ -362,18 +594,22 @@
             const labelValue = labels[index];
             const isChecked = currentAnswer.includes(labelValue) ? 'checked' : '';
             const inputType = isMulti ? 'checkbox' : 'radio';
-            optionsContainer.innerHTML += `<label class="option-label"><input type="${inputType}" name="q-option" value="${labelValue}" onchange="recordAnswer()" ${isChecked}><span>(${labelValue}) ${optText}</span></label>`;
+            
+            // 動態選項高光顏色
+            const hoverClass = themeColor === 'blue' ? 'hover-blue' : 'hover-purple';
+            
+            optionsContainer.innerHTML += `<label class="option-label" id="opt-${index}"><input type="${inputType}" name="q-option" value="${labelValue}" onchange="recordAnswer()" ${isChecked}><span>[${labelValue}] ${optText}</span></label>`;
         });
 
         if (evalMode === 'instant') {
             if (checkedQuestions[currentQIndex]) {
                 applyInstantFeedback(true);
             } else {
-                document.getElementById('btn-check').style.display = 'block';
+                document.getElementById('btn-check').style.display = 'flex';
             }
         } else {
             if (currentQIndex < filteredQuestions.length - 1) {
-                document.getElementById('btn-next').style.display = 'block';
+                document.getElementById('btn-next').style.display = 'flex';
             }
         }
     }
@@ -388,7 +624,7 @@
         if (!isReRender) {
             recordAnswer(); 
             const uAns = userAnswers[currentQIndex];
-            if (!uAns || uAns.length === 0) { alert('請先選擇答案，才能看解析喔！'); return; }
+            if (!uAns || uAns.length === 0) { alert('警告：未選擇任何資料點！'); return; }
         }
 
         checkedQuestions[currentQIndex] = true;
@@ -402,20 +638,20 @@
         
         let htmlContent = '';
         if (isCorrect) {
-            htmlContent += '<div style="font-weight:bold; font-size:1.1rem; color:var(--success-color); margin-bottom:5px;">✅ 答對了！</div>';
-            feedbackDiv.style.backgroundColor = '#f0fff4';
-            feedbackDiv.style.borderColor = '#9ae6b4';
+            htmlContent += '<div style="font-weight:900; font-size:1.2rem; color:var(--neon-green); text-shadow:0 0 8px var(--neon-green); margin-bottom:10px;">[ VALID ] 解析正確！</div>';
+            feedbackDiv.style.border = '1px solid rgba(0,255,102,0.3)';
+            feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(0,255,102,0.1)';
         } else {
-            htmlContent += `<div style="font-weight:bold; font-size:1.1rem; color:var(--danger-color); margin-bottom:5px;">❌ 答錯了！標準答案為：${cAnsStr}</div>`;
-            feedbackDiv.style.backgroundColor = '#fff5f5';
-            feedbackDiv.style.borderColor = '#feb2b2';
+            htmlContent += `<div style="font-weight:900; font-size:1.2rem; color:var(--neon-red); text-shadow:0 0 8px var(--neon-red); margin-bottom:10px;">[ ERROR ] 系統判定錯誤！標準資料：${cAnsStr}</div>`;
+            feedbackDiv.style.border = '1px solid rgba(255,0,85,0.3)';
+            feedbackDiv.style.boxShadow = 'inset 0 0 15px rgba(255,0,85,0.1)';
         }
 
         if (q.law_name || q.law_article || q.note) {
             htmlContent += '<div class="ref-box" style="text-align: left;">';
-            if (q.law_name) htmlContent += `<strong>📜 相關法規：</strong>${q.law_name}<br>`;
-            if (q.law_article) htmlContent += `<strong>🔖 法令條文：</strong>${q.law_article}<br>`;
-            if (q.note) htmlContent += `<strong>💡 參考資訊：</strong>${q.note}<br>`;
+            if (q.law_name) htmlContent += `<strong>[法規源]</strong> ${q.law_name}<br>`;
+            if (q.law_article) htmlContent += `<strong>[條文庫]</strong> ${q.law_article}<br>`;
+            if (q.note) htmlContent += `<strong>[資料庫]</strong> ${q.note}<br>`;
             htmlContent += '</div>';
         }
 
@@ -432,50 +668,52 @@
         });
 
         document.getElementById('btn-check').style.display = 'none';
-        if (currentQIndex < filteredQuestions.length - 1) document.getElementById('btn-next').style.display = 'block';
+        if (currentQIndex < filteredQuestions.length - 1) document.getElementById('btn-next').style.display = 'flex';
     }
 
-    function prevQuestion() { if (currentQIndex > 0) { currentQIndex--; renderQuestion(); } }
     function nextQuestion() { if (currentQIndex < filteredQuestions.length - 1) { currentQIndex++; renderQuestion(); } }
 
     function finishTest(isAutoSubmit = false) {
         clearInterval(timerInterval);
+        
         if (!isAutoSubmit) {
+            recordAnswer(); 
             const unans = userAnswers.filter(ans => !ans || ans.length === 0).length;
             if (unans > 0) { 
-                if (!confirm(`您還有 ${unans} 題尚未作答，確定要強制交卷嗎？未作答將以錯誤計算。`)) { startTimer(); return; }
+                if (!confirm(`警告：尚有 ${unans} 筆資料未輸入，確定要強制關閉掃描並結算嗎？`)) { startTimer(); return; }
             }
         }
 
         let correctCount = 0;
         let errorHtml = '';
         filteredQuestions.forEach((q, index) => {
-            const uAns = userAnswers[index] ? userAnswers[index].sort().join('') : '未作答';
+            const uAns = userAnswers[index] ? userAnswers[index].sort().join('') : '未輸入';
             const cAns = String(q.answer).toUpperCase().replace(/\s+/g, '').split('').sort().join('');
             if (uAns === cAns) {
                 correctCount++;
             } else {
                 let refInfo = '';
                 if (q.law_name || q.law_article || q.note) {
-                    refInfo += '<div style="margin-top: 8px; padding: 10px; background-color: rgba(255,255,255,0.7); border-radius: 6px; font-size: 0.9rem;">';
-                    if (q.law_name) refInfo += `<strong>📜 法規：</strong>${q.law_name}<br>`;
-                    if (q.law_article) refInfo += `<strong>🔖 條文：</strong>${q.law_article}<br>`;
-                    if (q.note) refInfo += `<strong>💡 參考：</strong>${q.note}<br>`;
+                    refInfo += '<div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-radius: 6px; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.1);">';
+                    if (q.law_name) refInfo += `<strong style="color:var(--neon-yellow);">[法規]</strong> ${q.law_name}<br>`;
+                    if (q.law_article) refInfo += `<strong style="color:var(--neon-yellow);">[條文]</strong> ${q.law_article}<br>`;
+                    if (q.note) refInfo += `<strong style="color:var(--neon-yellow);">[參考]</strong> ${q.note}<br>`;
                     refInfo += '</div>';
                 }
 
-                errorHtml += `<div class="error-item"><strong>第 ${index + 1} 題 (${q.type})</strong><br>${q.question}<br><span style="color:var(--danger-color)">您的作答：${uAns}</span> <br><span style="color:var(--success-color)">標準答案：${cAns}</span>${refInfo}</div>`;
+                errorHtml += `<div class="error-item"><strong>[Q${index + 1}] (${q.type})</strong><br><br><span style="font-size:1.1rem; color:#fff;">${q.question}</span><br><br><span style="color:var(--neon-red); font-weight:bold; text-shadow:0 0 5px var(--neon-red);">您的輸入：${uAns}</span> <br><span style="color:var(--neon-green); font-weight:bold; text-shadow:0 0 5px var(--neon-green);">標準資料：${cAns}</span>${refInfo}</div>`;
             }
         });
 
         document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('result-section').style.display = 'block';
+        
         const score = Math.round((correctCount / filteredQuestions.length) * 100);
-        document.getElementById('final-score').innerText = `${score} 分`;
-        document.getElementById('score-detail').innerText = `共 ${filteredQuestions.length} 題，答對 ${correctCount} 題`;
+        document.getElementById('final-score').innerText = `${score} %`;
+        document.getElementById('score-detail').innerText = `掃描 ${filteredQuestions.length} 題，正確 ${correctCount} 題`;
 
         const errorContainer = document.getElementById('error-log-container');
-        if (errorHtml === '') { errorContainer.innerHTML = '<h3 style="color:var(--success-color); text-align:center;">太厲害了！全對滿分！💯</h3>'; } 
+        if (errorHtml === '') { errorContainer.innerHTML = '<h3 style="color:var(--neon-green); text-align:center; text-shadow:0 0 10px var(--neon-green);">[ SYSTEM ] 完美通關！資料吻合度 100%</h3>'; } 
         else { document.getElementById('error-list').innerHTML = errorHtml; }
     }
 
